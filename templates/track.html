@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicPulse AI | Track Complaint</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #172b4d;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #102746;
+            color: white;
+            padding: 22px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            background: #20b486;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        main {
+            width: 92%;
+            max-width: 720px;
+            margin: 45px auto;
+            flex: 1;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(16, 39, 70, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .description {
+            color: #65758b;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            margin: 22px 0 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccd6e3;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: 2px solid #20b486;
+            border-color: transparent;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 14px;
+            padding: 14px;
+            background: #20b486;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #13815f;
+        }
+
+        .error {
+            margin-top: 18px;
+            padding: 13px;
+            border-radius: 8px;
+            background: #ffe3e3;
+            color: #a32020;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 22px;
+            border: 1px solid #dce5ef;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+
+        .result h3 {
+            margin-top: 0;
+        }
+
+        .detail {
+            margin: 14px 0;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: bold;
+        }
+
+        footer {
+            padding: 22px;
+            text-align: center;
+            color: #65758b;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 22px;
+            }
+
+            header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>📍 CivicPulse AI</h1>
+    <a href="{{ url_for('home') }}">← Home</a>
+</header>
+
+<main>
+    <section class="card">
+        <h2>Track Your Complaint</h2>
+
+        <p class="description">
+            Enter the complaint ID you received after submitting your
+            complaint to check its latest status.
+        </p>
+
+        <form method="POST" action="{{ url_for('track_complaint') }}">
+            <label for="complaint_id">Complaint ID</label>
+
+            <input
+                type="number"
+                id="complaint_id"
+                name="complaint_id"
+                min="1"
+                step="1"
+                value="{{ entered_id }}"
+                placeholder="Example: 12"
+                required
+            >
+
+            <button type="submit">Track Complaint →</button>
+        </form>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        {% if complaint %}
+            <div class="result">
+                <h3>Complaint Details</h3>
+
+                <p class="detail">
+                    <strong>Complaint ID:</strong>
+                    #{{ complaint.id }}
+                </p>
+
+                <p class="detail">
+                    <strong>City:</strong>
+                    {{ complaint.city }}
+                </p>
+
+                <p class="detail">
+                    <strong>Complaint:</strong>
+                    {{ complaint.complaint }}
+                </p>
+
+                <p class="detail">
+                    <strong>AI Category:</strong>
+                    {{ complaint.category }}
+                </p>
+
+                <p class="detail">
+                    <strong>Current Status:</strong>
+                    <span class="status">{{ complaint.status }}</span>
+                </p>
+
+                <p class="detail">
+                    <strong>Submitted At:</strong>
+                    {{ complaint.created_at }}
+                </p>
+            </div>
+        {% endif %}
+    </section>
+</main>
+
+<footer>
+    CivicPulse AI — Smarter Complaint Management
+</footer>
+
+</body>
+</html>

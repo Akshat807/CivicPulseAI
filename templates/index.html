@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CivicPulse AI | Smart City Support</title>
+
+    <meta name="description"
+          content="Report civic issues and help build a smarter, cleaner city with CivicPulse AI.">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+
+
+<a href="{{ url_for('track_complaint') }}" class="track-badge">
+    <span class="track-dot"></span>
+    Track My Complaint
+</a>
+
+
+
+
+    <!-- Button color fix -->
+    <style>
+        form button[type="submit"] {
+            display: block !important;
+            width: 100% !important;
+            min-height: 52px !important;
+            padding: 14px 20px !important;
+            background: #20b486 !important;
+            background-color: #20b486 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(32, 180, 134, 0.22) !important;
+            opacity: 1 !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        form button[type="submit"]:hover {
+            background: #13815f !important;
+            background-color: #13815f !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+        }
+
+        form button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 7px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <header class="topbar">
+        <div class="brand">
+            CivicPulse <span>AI.</span>
+        </div>
+
+        <div class="tagline">
+            Smarter cities start with your voice.
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- HERO SECTION -->
+        <section class="hero">
+
+            <p class="eyebrow">
+                ✦ SMART CITY • CITIZEN SUPPORT
+            </p>
+
+            <h1>
+                Make your city <span>better.</span>
+            </h1>
+
+            <p>
+                Every report makes a difference. Report civic issues,
+                discover their category with AI, and help build a
+                cleaner, safer and smarter community.
+            </p>
+
+            <div class="hero-art">
+                <span class="hero-chip">
+                    🤖 AI-powered classification
+                </span>
+
+                <span class="hero-chip">
+                    🏙️ Smarter communities
+                </span>
+
+                <span class="hero-chip">
+                    📍 Citizen-first reporting
+                </span>
+            </div>
+
+            <!-- CITY ILLUSTRATION -->
+            <div class="city-art" aria-hidden="true">
+                <svg viewBox="0 0 520 150"
+                     xmlns="http://www.w3.org/2000/svg">
+
+                    <circle cx="430" cy="35" r="20"
+                            fill="#65E6C5" opacity=".8"/>
+
+                    <path d="M0 135 L0 105 L35 105 L35 78
+                             L72 78 L72 115 L102 115 L102 58
+                             L140 58 L140 100 L173 100 L173 83
+                             L208 83 L208 125 L248 125 L248 65
+                             L287 65 L287 105 L320 105 L320 88
+                             L357 88 L357 119 L390 119 L390 70
+                             L427 70 L427 105 L463 105 L463 90
+                             L500 90 L500 135 Z"
+                          fill="#65E6C5" opacity=".17"/>
+
+                    <path d="M0 145 L0 125 L42 125 L42 97
+                             L83 97 L83 130 L125 130 L125 88
+                             L166 88 L166 120 L207 120 L207 103
+                             L250 103 L250 135 L292 135 L292 98
+                             L333 98 L333 124 L375 124 L375 85
+                             L416 85 L416 125 L460 125 L460 108
+                             L520 108 L520 150 Z"
+                          fill="#65E6C5" opacity=".27"/>
+
+                    <g fill="#65E6C5" opacity=".85">
+                        <rect x="111" y="70" width="5" height="8" rx="1"/>
+                        <rect x="126" y="70" width="5" height="8" rx="1"/>
+                        <rect x="111" y="85" width="5" height="8" rx="1"/>
+                        <rect x="126" y="85" width="5" height="8" rx="1"/>
+
+                        <rect x="259" y="77" width="6" height="9" rx="1"/>
+                        <rect x="274" y="77" width="6" height="9" rx="1"/>
+                        <rect x="259" y="93" width="6" height="9" rx="1"/>
+                        <rect x="274" y="93" width="6" height="9" rx="1"/>
+
+                        <rect x="401" y="81" width="6" height="9" rx="1"/>
+                        <rect x="415" y="81" width="6" height="9" rx="1"/>
+                        <rect x="401" y="96" width="6" height="9" rx="1"/>
+                        <rect x="415" y="96" width="6" height="9" rx="1"/>
+                    </g>
+                </svg>
+            </div>
+
+        </section>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-grid">
+
+            <!-- COMPLAINT FORM -->
+            <section class="card">
+
+                <div class="section-heading">
+                    <div class="section-icon" aria-hidden="true">
+                        📣
+                    </div>
+
+                    <div>
+                        <h2>Submit a complaint</h2>
+
+                        <p class="card-subtitle">
+                            Tell us what's happening in your neighbourhood.
+                            Our ML model will suggest a category.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SUCCESS MESSAGE -->
+                {% if message %}
+                <div class="alert alert-success" role="status">
+                    <strong>✓ Complaint submitted successfully!</strong>
+
+                    Complaint ID:
+                    <strong>#{{ complaint_id }}</strong>
+                    <br>
+
+                    Predicted category:
+                    <strong>{{ predicted_category }}</strong>
+                    <br>
+
+                    Keep your complaint ID for future reference.
+                </div>
+                {% endif %}
+
+                <!-- ERROR MESSAGE -->
+                {% if error %}
+                <div class="alert alert-error" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <!-- FORM -->
+                <form method="POST" action="/">
+
+                    <div class="form-group">
+                        <label for="city">Your city *</label>
+
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            maxlength="100"
+                            placeholder="e.g. Bhopal"
+                            autocomplete="address-level2"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complaint">Describe the issue *</label>
+
+                        <textarea
+                            id="complaint"
+                            name="complaint"
+                            rows="5"
+                            maxlength="2000"
+                            placeholder="e.g. Garbage has not been collected for three days..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <!-- GREEN SUBMIT BUTTON -->
+                    <button type="submit" class="submit-btn">
+                        Submit complaint →
+                    </button>
+
+                </form>
+
+                <p class="note">
+                    ✦ AI predictions may be incorrect and should be
+                    reviewed before taking action. This demo stores
+                    complaints locally on the application server.
+                </p>
+
+            </section>
+
+            <!-- CATEGORY CARDS -->
+            <section class="card">
+
+                <div class="section-heading">
+                    <div class="section-icon" aria-hidden="true">
+                        🏙️
+                    </div>
+
+                    <div>
+                        <h2>What needs attention?</h2>
+
+                        <p class="card-subtitle">
+                            CivicPulse AI currently classifies reports
+                            into five civic issue categories.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="category-grid">
+
+                    <div class="category-tile">
+                        <div class="category-emoji" aria-hidden="true">🚧</div>
+                        <div>
+                            <strong>Road Damage</strong>
+                            <small>Potholes &amp; broken roads</small>
+                        </div>
+                    </div>
+
+                    <div class="category-tile">
+                        <div class="category-emoji" aria-hidden="true">💧</div>
+                        <div>
+                            <strong>Water Issue</strong>
+                            <small>Supply &amp; leakage</small>
+                        </div>
+                    </div>
+
+                    <div class="category-tile">
+                        <div class="category-emoji" aria-hidden="true">⚡</div>
+                        <div>
+                            <strong>Electrical Hazard</strong>
+                            <small>Lights &amp; power lines</small>
+                        </div>
+                    </div>
+
+                    <div class="category-tile">
+                        <div class="category-emoji" aria-hidden="true">🌧️</div>
+                        <div>
+                            <strong>Flooding</strong>
+                            <small>Waterlogging &amp; rain</small>
+                        </div>
+                    </div>
+
+                    <div class="category-tile">
+                        <div class="category-emoji" aria-hidden="true">♻️</div>
+                        <div>
+                            <strong>Waste Management</strong>
+                            <small>Garbage &amp; collection</small>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-icon" aria-hidden="true">💡</div>
+
+                    <div>
+                        <strong>Every report matters</strong>
+
+                        <p class="muted">
+                            Clear descriptions help the system classify
+                            civic issues more effectively.
+                        </p>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+        <!-- RECENT COMPLAINTS -->
+        <section class="history">
+
+            <div class="history-heading">
+                <div>
+                    <h2>Recent complaints</h2>
+
+                    <p class="muted">
+                        Latest records saved in the CivicPulse database.
+                    </p>
+                </div>
+
+                <span class="count">
+                    {{ records|length }} shown
+                </span>
+            </div>
+
+            {% if records %}
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>City</th>
+                            <th>Complaint</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>#{{ record[0] }}</td>
+                            <td>{{ record[1] }}</td>
+                            <td class="complaint-cell">{{ record[2] }}</td>
+                            <td>
+                                <span class="category-label">
+                                    {{ record[3] }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status">
+                                    {{ record[4] }}
+                                </span>
+                            </td>
+                            <td>{{ record[5] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="empty">
+                <div class="empty-icon" aria-hidden="true">📋</div>
+                <strong>No complaints yet</strong>
+
+                <p>
+                    Submit your first complaint to see it here.
+                </p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="brand">
+            CivicPulse <span>AI.</span>
+        </div>
+
+        <p>Technology for better communities.</p>
+        <p>CivicPulse AI · Smart City Learning Project</p>
+    </footer>
+
+</body>
+</html>

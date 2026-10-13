@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | CivicPulse AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: #f3f7f6;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 36px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 16px 45px rgba(15, 40, 55, 0.12);
+        }
+
+        .login-card h1 {
+            margin-bottom: 8px;
+            color: #102b3a;
+        }
+
+        .login-subtitle {
+            margin-bottom: 28px;
+            color: #647782;
+        }
+
+        .login-card label {
+            display: block;
+            margin: 16px 0 8px;
+            font-weight: 600;
+        }
+
+        .login-card input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d4dfdf;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        
+.login-card button {
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px 18px;
+
+    background-color: #157f69 !important;
+    color: #ffffff !important;
+
+    border: 2px solid #106854;
+    border-radius: 10px;
+
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
+    box-shadow: 0 4px 10px rgba(21, 127, 105, 0.25);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-card button:hover {
+    background-color: #106854 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 14px rgba(21, 127, 105, 0.35);
+}
+
+.login-card button:focus-visible {
+    outline: 3px solid #79d8bd;
+    outline-offset: 3px;
+}
+
+
+        .login-card button:hover {
+            background: #106854;
+        }
+
+        .login-message {
+            margin: 12px 0;
+            color: #b42318;
+        }
+
+        .login-footer {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .login-footer a {
+            color: #157f69;
+        }
+    </style>
+</head>
+<body>
+    <main class="login-page">
+        <section class="login-card">
+            <h1>Admin Login</h1>
+            <p class="login-subtitle">
+                Sign in to manage CivicPulse AI complaints.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <p class="login-message">{{ message }}</p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit">Sign In</button>
+            </form>
+
+            <p class="login-footer">
+                <a href="{{ url_for('home') }}">Back to CivicPulse AI</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

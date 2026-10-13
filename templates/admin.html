@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicPulse AI | Admin Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #172b4d;
+        }
+
+        header {
+            background: #102746;
+            color: white;
+            padding: 24px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-actions a,
+        .logout-btn {
+            color: white;
+            text-decoration: none;
+            background: #20b486;
+            padding: 11px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .header-actions a:hover,
+        .logout-btn:hover {
+            background: #13815f;
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 30px auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card,
+        .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(16, 39, 70, 0.06);
+        }
+
+        .stat-card p {
+            color: #65758b;
+            margin: 0 0 12px;
+        }
+
+        .stat-card h2 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .panel {
+            margin-bottom: 26px;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 21px;
+        }
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
+        .flash.success {
+            background: #d9f8e9;
+            color: #116747;
+        }
+
+        .flash.error {
+            background: #ffe3e3;
+            color: #a32020;
+        }
+
+        .category-row {
+            margin: 18px 0;
+        }
+
+        .category-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .bar-background {
+            height: 10px;
+            background: #e8edf4;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .bar {
+            height: 100%;
+            background: #20b486;
+            border-radius: 20px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e8edf4;
+            vertical-align: top;
+        }
+
+        th {
+            color: #65758b;
+            font-size: 13px;
+            background: #f8fafc;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .status-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            min-width: 220px;
+        }
+
+        select {
+            padding: 9px;
+            border: 1px solid #ccd6e3;
+            border-radius: 7px;
+            background: white;
+            color: #172b4d;
+            min-width: 125px;
+        }
+
+        .update-btn {
+            border: none;
+            border-radius: 7px;
+            padding: 10px 12px;
+            background: #20b486;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .update-btn:hover {
+            background: #13815f;
+        }
+
+        .empty {
+            text-align: center;
+            color: #65758b;
+            padding: 25px;
+        }
+
+        @media (max-width: 850px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                width: 94%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🛠️ CivicPulse AI Admin</h1>
+
+    <div class="header-actions">
+        <a href="{{ url_for('home') }}">← Back to Website</a>
+
+        <form
+            class="logout-form"
+            method="POST"
+            action="{{ url_for('logout') }}"
+        >
+            <button class="logout-btn" type="submit">
+                Logout ↗
+            </button>
+        </form>
+    </div>
+</header>
+
+<main class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="stats">
+
+        <div class="stat-card">
+            <p>Total Complaints</p>
+            <h2>{{ total_complaints }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>🟡 Submitted</p>
+            <h2>{{ submitted_count }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>🔵 In Progress</p>
+            <h2>{{ in_progress_count }}</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>🟢 Resolved</p>
+            <h2>{{ resolved_count }}</h2>
+        </div>
+
+    </section>
+
+    <section class="panel">
+        <h2>📊 Complaints by Category</h2>
+
+        {% set max_category = namespace(value=1) %}
+
+        {% for item in category_counts %}
+            {% if item.total > max_category.value %}
+                {% set max_category.value = item.total %}
+            {% endif %}
+        {% endfor %}
+
+        {% if category_counts %}
+
+            {% for item in category_counts %}
+                <div class="category-row">
+
+                    <div class="category-label">
+                        <span>{{ item.category }}</span>
+                        <strong>{{ item.total }}</strong>
+                    </div>
+
+                    <div class="bar-background">
+                        <div
+                            class="bar"
+                            style="width: {{ (item.total / max_category.value * 100)|round }}%;"
+                        ></div>
+                    </div>
+
+                </div>
+            {% endfor %}
+
+        {% else %}
+            <p>No complaints have been submitted yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>📋 Manage Complaints</h2>
+        <p>Choose a new status and click Update Status to save it.</p>
+
+        <div class="table-wrapper">
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>City</th>
+                        <th>Complaint</th>
+                        <th>AI Category</th>
+                        <th>Current Status</th>
+                        <th>Update Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in recent_complaints %}
+                        <tr>
+                            <td>#{{ item.id }}</td>
+                            <td>{{ item.city }}</td>
+                            <td>{{ item.complaint }}</td>
+                            <td>{{ item.category }}</td>
+                            <td>{{ item.status }}</td>
+
+                            <td>
+                                <form
+                                    class="status-form"
+                                    method="POST"
+                                    action="{{ url_for('admin') }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="complaint_id"
+                                        value="{{ item.id }}"
+                                    >
+
+                                    <select name="status" required>
+                                        <option
+                                            value="Submitted"
+                                            {% if item.status == "Submitted" %}selected{% endif %}
+                                        >
+                                            Submitted
+                                        </option>
+
+                                        <option
+                                            value="In Progress"
+                                            {% if item.status == "In Progress" %}selected{% endif %}
+                                        >
+                                            In Progress
+                                        </option>
+
+                                        <option
+                                            value="Resolved"
+                                            {% if item.status == "Resolved" %}selected{% endif %}
+                                        >
+                                            Resolved
+                                        </option>
+                                    </select>
+
+                                    <button class="update-btn" type="submit">
+                                        Update
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td>{{ item.created_at }}</td>
+                        </tr>
+
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty">
+                                No complaints available yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local database and backups
+civicpulse.db
+civicpulse_backup.db
+civicpulse_priority_backup.db
+*.db-journal
+
+# Local backup files
+app_backup.py
+database_backup.py
+
+# Logs
+*.log
+
+# Editor and operating system files
+.vscode/
+.DS_Store
+Thumbs.db
