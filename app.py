@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from functools import wraps
 import os
@@ -18,10 +17,15 @@ from flask import (
     session,
     jsonify,
 )
-from werkzeug.security import check_password_hash
+from werkzeug.security import (
+    check_password_hash,
+    generate_password_hash,
+)
 
 from database import (
     initialize_database,
+    initialize_admin_table,
+    create_admin,
     save_complaint,
     get_complaints,
     get_filtered_complaints,
@@ -42,8 +46,10 @@ from citizen_auth import citizen_bp
 from priority_detector import detect_priority_details
 from insights_engine import generate_insights
 
+
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "civicpulse_model.pkl"
+
 
 app = Flask(__name__)
 app.register_blueprint(citizen_bp)
@@ -53,7 +59,7 @@ app.secret_key = os.environ.get("CIVICPULSE_SECRET_KEY")
 if not app.secret_key:
     raise RuntimeError(
         "CIVICPULSE_SECRET_KEY is not set. "
-        "Set it in your terminal before starting the app."
+        "Set it in your environment variables."
     )
 
 if not MODEL_PATH.exists():
@@ -62,7 +68,35 @@ if not MODEL_PATH.exists():
     )
 
 model = joblib.load(MODEL_PATH)
+
+# Initialize the existing database without deleting its data.
 initialize_database()
+
+# Initialize the admin table and optionally bootstrap a Render admin.
+initialize_admin_table()
+
+admin_username = os.environ.get(
+    "CIVICPULSE_ADMIN_USERNAME", ""
+).strip()
+
+admin_password = os.environ.get(
+    "CIVICPULSE_ADMIN_PASSWORD", ""
+)
+
+if admin_username and admin_password:
+    if len(admin_password) < 16:
+        app.logger.warning(
+            "Configured admin password must be at least "
+            "16 characters long. Admin bootstrap skipped."
+        )
+    elif not get_admin_by_username(admin_username):
+        create_admin(
+            admin_username,
+            generate_password_hash(admin_password),
+        )
+        app.logger.info(
+            "Configured admin account created successfully."
+        )
 
 
 def login_required(view_function):
@@ -88,16 +122,19 @@ def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
+
         admin_account = get_admin_by_username(username)
 
         if (
             admin_account
             and check_password_hash(
-                admin_account["password_hash"], password
+                admin_account["password_hash"],
+                password,
             )
         ):
             session.clear()
             session["admin_username"] = admin_account["username"]
+
             flash("Login successful!", "success")
             return redirect(url_for("admin"))
 
@@ -136,7 +173,9 @@ def home():
             return redirect(url_for("citizen.login"))
 
         city = request.form.get("city", "").strip()
-        complaint_text = request.form.get("complaint", "").strip()
+        complaint_text = request.form.get(
+            "complaint", ""
+        ).strip()
 
         latitude, longitude = validate_coordinates(
             request.form.get("latitude"),
@@ -176,7 +215,9 @@ def home():
                 predicted_category,
             )
 
-            predicted_priority = details.get("priority", "Medium")
+            predicted_priority = details.get(
+                "priority", "Medium"
+            )
             priority_score = details.get("score", 40)
             priority_reason = details.get(
                 "reason",
@@ -196,7 +237,9 @@ def home():
                 location_address=location_address,
             )
 
-            message = "Your complaint has been saved successfully!"
+            message = (
+                "Your complaint has been saved successfully!"
+            )
 
     records = get_complaints(limit=10)
 
@@ -220,7 +263,9 @@ def track_complaint():
     entered_id = ""
 
     if request.method == "POST":
-        entered_id = request.form.get("complaint_id", "").strip()
+        entered_id = request.form.get(
+            "complaint_id", ""
+        ).strip()
 
         if not entered_id.isdigit() or int(entered_id) <= 0:
             error = "Please enter a valid complaint ID."
@@ -229,7 +274,9 @@ def track_complaint():
             complaint = get_complaint_by_id(int(entered_id))
 
             if complaint is None:
-                error = "Complaint not found. Please check your ID."
+                error = (
+                    "Complaint not found. Please check your ID."
+                )
 
     return render_template(
         "track.html",
@@ -239,19 +286,26 @@ def track_complaint():
     )
 
 
-
 @app.route("/admin", methods=["GET", "POST"])
 @login_required
 def admin():
     if request.method == "POST":
-        complaint_id = request.form.get("complaint_id", type=int)
+        complaint_id = request.form.get(
+            "complaint_id", type=int
+        )
         status = request.form.get("status", "")
 
         search = request.form.get("search", "").strip()
-        selected_status = request.form.get("filter_status", "")
+        selected_status = request.form.get(
+            "filter_status", ""
+        )
         category = request.form.get("filter_category", "")
-        selected_priority = request.form.get("filter_priority", "")
-        page = request.form.get("page", 1, type=int) or 1
+        selected_priority = request.form.get(
+            "filter_priority", ""
+        )
+        page = request.form.get(
+            "page", 1, type=int
+        ) or 1
 
         if complaint_id is None:
             flash("Invalid complaint ID.", "error")
@@ -272,14 +326,16 @@ def admin():
                     "error",
                 )
 
-        return redirect(url_for(
-            "admin",
-            search=search,
-            status=selected_status,
-            category=category,
-            priority=selected_priority,
-            page=page,
-        ))
+        return redirect(
+            url_for(
+                "admin",
+                search=search,
+                status=selected_status,
+                category=category,
+                priority=selected_priority,
+                page=page,
+            )
+        )
 
     # Read dashboard filters.
     search = request.args.get("search", "").strip()
@@ -355,21 +411,23 @@ def admin_map():
             and complaint["longitude"] is not None
         )
 
-        map_records.append({
-            "id": complaint["id"],
-            "city": complaint["city"],
-            "category": complaint["category"],
-            "status": complaint["status"],
-            "priority": complaint["priority"],
-            "priority_score": complaint["priority_score"],
-            "latitude": complaint["latitude"],
-            "longitude": complaint["longitude"],
-            "location_address": complaint["location_address"],
-            "created_at": complaint["created_at"],
-            "location_type": (
-                "gps" if has_coordinates else "approximate"
-            ),
-        })
+        map_records.append(
+            {
+                "id": complaint["id"],
+                "city": complaint["city"],
+                "category": complaint["category"],
+                "status": complaint["status"],
+                "priority": complaint["priority"],
+                "priority_score": complaint["priority_score"],
+                "latitude": complaint["latitude"],
+                "longitude": complaint["longitude"],
+                "location_address": complaint["location_address"],
+                "created_at": complaint["created_at"],
+                "location_type": (
+                    "gps" if has_coordinates else "approximate"
+                ),
+            }
+        )
 
     return render_template(
         "map.html",
@@ -399,21 +457,23 @@ def admin_map_data():
             and complaint["longitude"] is not None
         )
 
-        map_records.append({
-            "id": complaint["id"],
-            "city": complaint["city"],
-            "category": complaint["category"],
-            "status": complaint["status"],
-            "priority": complaint["priority"],
-            "priority_score": complaint["priority_score"],
-            "latitude": complaint["latitude"],
-            "longitude": complaint["longitude"],
-            "location_address": complaint["location_address"],
-            "created_at": complaint["created_at"],
-            "location_type": (
-                "gps" if has_coordinates else "approximate"
-            ),
-        })
+        map_records.append(
+            {
+                "id": complaint["id"],
+                "city": complaint["city"],
+                "category": complaint["category"],
+                "status": complaint["status"],
+                "priority": complaint["priority"],
+                "priority_score": complaint["priority_score"],
+                "latitude": complaint["latitude"],
+                "longitude": complaint["longitude"],
+                "location_address": complaint["location_address"],
+                "created_at": complaint["created_at"],
+                "location_type": (
+                    "gps" if has_coordinates else "approximate"
+                ),
+            }
+        )
 
     return jsonify({"complaints": map_records})
 
@@ -430,19 +490,23 @@ def reverse_geocode():
     )
 
     if latitude is None or longitude is None:
-        return jsonify({
-            "success": False,
-            "address": "",
-            "error": "Invalid GPS coordinates.",
-        }), 400
+        return jsonify(
+            {
+                "success": False,
+                "address": "",
+                "error": "Invalid GPS coordinates.",
+            }
+        ), 400
 
-    params = urlencode({
-        "format": "jsonv2",
-        "lat": latitude,
-        "lon": longitude,
-        "zoom": 18,
-        "addressdetails": 1,
-    })
+    params = urlencode(
+        {
+            "format": "jsonv2",
+            "lat": latitude,
+            "lon": longitude,
+            "zoom": 18,
+            "addressdetails": 1,
+        }
+    )
 
     url = (
         "https://nominatim.openstreetmap.org/reverse?"
@@ -471,16 +535,22 @@ def reverse_geocode():
         ).strip()
 
         if not address:
-            return jsonify({
-                "success": False,
-                "address": "",
-                "error": "No address was found for these coordinates.",
-            }), 404
+            return jsonify(
+                {
+                    "success": False,
+                    "address": "",
+                    "error": (
+                        "No address was found for these coordinates."
+                    ),
+                }
+            ), 404
 
-        return jsonify({
-            "success": True,
-            "address": address,
-        })
+        return jsonify(
+            {
+                "success": True,
+                "address": address,
+            }
+        )
 
     except (
         HTTPError,
@@ -493,11 +563,15 @@ def reverse_geocode():
             "Reverse geocoding failed: %s", exc
         )
 
-        return jsonify({
-            "success": False,
-            "address": "",
-            "error": "Address lookup is temporarily unavailable.",
-        }), 502
+        return jsonify(
+            {
+                "success": False,
+                "address": "",
+                "error": (
+                    "Address lookup is temporarily unavailable."
+                ),
+            }
+        ), 502
 
 
 if __name__ == "__main__":
