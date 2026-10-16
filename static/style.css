@@ -918,3 +918,48 @@ a.track-badge:hover,
 a[href*="track_complaint"]:hover {
     text-decoration: none !important;
 }
+/* Admin Login Button */
+.admin-login-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    background: #183b66;
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.admin-login-link:hover {
+    background: #24558d;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(24, 59, 102, 0.2);
+}
+
+.admin-login-link:focus-visible {
+    outline: 3px solid #20b486;
+    outline-offset: 3px;
+}
+
+/* Keep the navigation responsive on small screens */
+@media (max-width: 700px) {
+    .topbar {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .admin-login-link {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}

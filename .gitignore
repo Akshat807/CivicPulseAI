@@ -13,13 +13,17 @@ __pycache__/
 .env.*
 !.env.example
 
-# Local database and backups
-civicpulse.db
-civicpulse_backup.db
-civicpulse_priority_backup.db
-*.db-journal
+# Local databases and database backups
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
 
 # Local backup files
+*.backup
+*.analytics-backup
+*.before-advanced-analytics
+*.bak
 app_backup.py
 database_backup.py
 
@@ -28,5 +32,12 @@ database_backup.py
 
 # Editor and operating system files
 .vscode/
+.idea/
 .DS_Store
 Thumbs.db
+
+# Temporary JavaScript review copy
+static/js/script_review.txt
+
+# Accidental terminal output
+tatus --short

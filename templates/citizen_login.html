@@ -1,0 +1,504 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Citizen Login | CivicPulse AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #0b1f33;
+            --teal: #20b486;
+            --teal-dark: #13815f;
+            --text: #102a43;
+            --muted: #62778b;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 35px 20px;
+            display: grid;
+            place-items: center;
+            overflow-x: hidden;
+            position: relative;
+
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(32, 180, 134, 0.16),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 85% 75%,
+                    rgba(36, 130, 190, 0.19),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #091a2b,
+                    #102b43 50%,
+                    #0a2035
+                );
+
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* Animated background graphics */
+
+        .ambient {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(1px);
+            z-index: 0;
+            animation: float 9s ease-in-out infinite;
+        }
+
+        .ambient-one {
+            width: 240px;
+            height: 240px;
+            top: 5%;
+            left: -100px;
+            border: 1px solid rgba(32, 180, 134, 0.22);
+            box-shadow: 0 0 80px rgba(32, 180, 134, 0.08);
+        }
+
+        .ambient-two {
+            width: 170px;
+            height: 170px;
+            right: -55px;
+            bottom: 8%;
+            background: rgba(32, 180, 134, 0.045);
+            border: 1px solid rgba(91, 180, 220, 0.2);
+            animation-delay: -4s;
+        }
+
+        .ambient-three {
+            width: 12px;
+            height: 12px;
+            top: 20%;
+            right: 17%;
+            background: var(--teal);
+            box-shadow: 0 0 25px rgba(32, 180, 134, 0.8);
+            animation-delay: -2s;
+        }
+
+        .ambient-four {
+            width: 7px;
+            height: 7px;
+            left: 15%;
+            bottom: 18%;
+            background: #65d9bd;
+            box-shadow: 0 0 20px rgba(101, 217, 189, 0.8);
+            animation-delay: -6s;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 460px;
+            position: relative;
+            z-index: 1;
+            animation: cardEnter 0.75s cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+        /* Blue-teal glass card */
+
+        .card {
+            width: 100%;
+
+            background:
+                radial-gradient(
+                    ellipse at 90% 15%,
+                    rgba(32, 180, 134, 0.24),
+                    transparent 42%
+                ),
+                radial-gradient(
+                    ellipse at 10% 90%,
+                    rgba(83, 176, 208, 0.22),
+                    transparent 45%
+                ),
+                linear-gradient(
+                    135deg,
+                    rgba(232, 244, 253, 0.97),
+                    rgba(211, 235, 239, 0.96) 55%,
+                    rgba(223, 244, 239, 0.97)
+                );
+
+            padding: 36px;
+            border-radius: 25px;
+            border: 1px solid rgba(224, 249, 255, 0.85);
+
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                0 0 35px rgba(32, 180, 134, 0.08);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            position: relative;
+            overflow: hidden;
+
+            transition:
+                transform 0.35s ease,
+                box-shadow 0.35s ease;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: -110px;
+            right: -100px;
+            width: 270px;
+            height: 270px;
+            border: 3px solid rgba(32, 180, 190, 0.17);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            top: -65px;
+            right: -55px;
+            width: 180px;
+            height: 180px;
+            border: 2px solid rgba(32, 180, 190, 0.15);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card:hover {
+            box-shadow:
+                0 35px 100px rgba(0, 0, 0, 0.33),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85),
+                0 0 45px rgba(32, 180, 134, 0.12);
+        }
+
+        .card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: inline-block;
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 7px;
+            color: var(--navy);
+        }
+
+        .brand span {
+            color: var(--teal);
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            color: var(--teal-dark);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 23px;
+            height: 2px;
+            border-radius: 4px;
+            background: var(--teal);
+        }
+
+        h1 {
+            font-size: clamp(29px, 5vw, 36px);
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin: 0 0 13px;
+            color: #102a43;
+        }
+
+        .muted {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 16px;
+            margin: 0 0 24px;
+        }
+
+        .field {
+            margin-top: 19px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #17324b;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            padding: 14px 15px;
+            border: 1px solid rgba(201, 221, 235, 0.95);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.84);
+            color: #102a43;
+            font-size: 15px;
+            font-family: inherit;
+
+            transition:
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        input:hover {
+            border-color: #aabfcf;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--teal);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 0 0 4px rgba(32, 180, 134, 0.14);
+            transform: translateY(-1px);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 11px;
+            background: linear-gradient(110deg, #20b486, #19a982);
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+
+            box-shadow: 0 7px 18px rgba(32, 180, 134, 0.2);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.25s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(110deg, #13815f, #15936e);
+            transform: translateY(-2px);
+            box-shadow: 0 11px 25px rgba(32, 180, 134, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        a {
+            color: var(--teal-dark);
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #075f46;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .message {
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #fff1f0;
+            color: #a12622;
+            border: 1px solid #ffd4d0;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 10px 0;
+            animation: messageEnter 0.3s ease both;
+        }
+
+        .message.success {
+            background: #eafaf3;
+            color: #126b4d;
+            border-color: #c5efdc;
+        }
+
+        .bottom {
+            text-align: center;
+            margin: 23px 0 0;
+            color: #52677b;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: rgba(230, 243, 250, 0.65);
+            font-size: 12px;
+            margin-top: 20px;
+            letter-spacing: 0.2px;
+        }
+
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.985);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            50% {
+                transform: translate3d(12px, -20px, 0);
+            }
+        }
+
+        @keyframes messageEnter {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 22px 14px;
+            }
+
+            .card {
+                padding: 28px 22px;
+                border-radius: 21px;
+            }
+
+            .brand {
+                font-size: 23px;
+            }
+
+            .muted {
+                font-size: 15px;
+            }
+
+            .ambient-one {
+                width: 170px;
+                height: 170px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <div class="ambient ambient-three" aria-hidden="true"></div>
+    <div class="ambient ambient-four" aria-hidden="true"></div>
+
+    <main class="page">
+        <section class="card">
+            <div class="brand">CivicPulse <span>AI.</span></div>
+
+            <div class="eyebrow">Citizen portal</div>
+
+            <h1>Welcome back</h1>
+
+            <p class="muted">
+                Sign in to submit complaints and follow their progress.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <p
+                        class="message {% if category == 'success' %}success{% endif %}"
+                        role="alert"
+                    >{{ message }}</p>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('citizen.login') }}">
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="you@example.com"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit">Sign In &rarr;</button>
+            </form>
+
+            <p class="bottom">
+                New to CivicPulse AI?
+                <a href="{{ url_for('citizen.signup') }}">Create account</a>
+            </p>
+
+            <p class="bottom" style="margin-top: 13px;">
+                <a href="{{ url_for('home') }}">&larr; Back to home</a>
+            </p>
+        </section>
+
+        <div class="footer-note">
+            CivicPulse AI &bull; Better communities, together.
+        </div>
+    </main>
+</body>
+</html>

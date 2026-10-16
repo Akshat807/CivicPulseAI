@@ -1,0 +1,850 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart City Map | CivicPulse AI</title>
+
+    <!-- Leaflet map library -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        :root {
+            --bg: #07111f;
+            --panel: #101d2e;
+            --panel-light: #16263a;
+            --border: #26384e;
+            --text: #edf5ff;
+            --muted: #94a8c0;
+            --teal: #38d9c5;
+            --blue: #69a8ff;
+            --red: #ff5e72;
+            --orange: #ffad55;
+            --green: #42d69a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 18px 5%;
+            border-bottom: 1px solid var(--border);
+            background: #0a1626;
+        }
+
+        .brand {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand span {
+            color: var(--teal);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link,
+        .logout-button {
+            display: inline-block;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--text);
+            background: var(--panel);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .logout-button:hover {
+            border-color: var(--teal);
+        }
+
+        .page {
+            width: min(1400px, 92%);
+            margin: 30px auto 50px;
+        }
+
+        .heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            color: var(--teal);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 8px 0;
+            font-size: clamp(27px, 4vw, 38px);
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .live-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border: 1px solid #24564f;
+            border-radius: 30px;
+            color: var(--teal);
+            font-size: 12px;
+            background: #102c2c;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--teal);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            padding: 19px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: var(--panel);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .stat-value {
+            margin-top: 10px;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .stat-note {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .filters {
+            display: flex;
+            align-items: end;
+            gap: 13px;
+            flex-wrap: wrap;
+            padding: 17px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--panel);
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            flex: 1;
+            min-width: 155px;
+        }
+
+        .filter-field label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        select,
+        .reset-button {
+            width: 100%;
+            min-height: 42px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #0a1626;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .reset-button {
+            width: auto;
+            min-width: 90px;
+            cursor: pointer;
+        }
+
+        .reset-button:hover {
+            border-color: var(--teal);
+        }
+
+        .map-panel {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 17px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 750;
+        }
+
+        .panel-subtitle {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .map-count {
+            color: var(--teal);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        #cityMap {
+            width: 100%;
+            height: 500px;
+            background: #dce5eb;
+        }
+
+        .legend {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .location-note {
+            padding: 13px 18px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .secondary-panel {
+            margin-top: 22px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: var(--panel);
+        }
+
+        .secondary-panel h2 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .section-description {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .complaint-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .complaint-card {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: #0b1727;
+        }
+
+        .complaint-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .complaint-id {
+            color: var(--teal);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .complaint-category {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .complaint-address {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .complaint-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 5px 8px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 750;
+        }
+
+        .priority-critical {
+            color: var(--red);
+            border-color: #743344;
+            background: #351923;
+        }
+
+        .priority-high {
+            color: var(--orange);
+            border-color: #754a29;
+            background: #302317;
+        }
+
+        .priority-medium {
+            color: #f1d16a;
+            border-color: #685725;
+            background: #302b19;
+        }
+
+        .priority-low {
+            color: var(--green);
+            border-color: #245a47;
+            background: #132c25;
+        }
+
+        .status-pill {
+            color: var(--blue);
+        }
+
+        .empty-state {
+            padding: 25px 15px;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .footer {
+            padding: 25px 0 5px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 11px;
+        }
+
+        /* Readable popup styling on the map */
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+        }
+
+        .popup-title {
+            margin-bottom: 7px;
+            font-weight: 800;
+        }
+
+        .popup-line {
+            margin-top: 5px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .popup-link {
+            display: inline-block;
+            margin-top: 9px;
+            color: #087f8c;
+            font-weight: 700;
+        }
+
+        @media (max-width: 850px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            #cityMap {
+                height: 420px;
+            }
+
+            .complaint-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                width: 94%;
+                margin-top: 22px;
+            }
+
+            .navbar {
+                padding: 15px 3%;
+            }
+
+            .stats {
+                gap: 9px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-value {
+                font-size: 25px;
+            }
+
+            #cityMap {
+                height: 360px;
+            }
+
+            .filters {
+                padding: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a class="brand" href="{{ url_for('home') }}">
+            CivicPulse <span>AI</span>
+        </a>
+
+        <div class="nav-actions">
+            <a class="nav-link" href="{{ url_for('admin') }}">
+                Admin Dashboard
+            </a>
+
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button class="logout-button" type="submit">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="heading">
+            <div>
+                <div class="eyebrow">Geospatial Intelligence</div>
+                <h1>Smart City Map</h1>
+                <p class="subtitle">
+                    Explore reported civic issues, identify urgent complaints,
+                    and review available location information.
+                </p>
+            </div>
+
+            <div class="live-label">
+                <span class="live-dot"></span>
+                Complaint data
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Complaints</div>
+                <div class="stat-value">{{ total_complaints }}</div>
+                <div class="stat-note">All records retrieved</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">GPS Locations</div>
+                <div class="stat-value" id="gpsStat">{{ gps_count }}</div>
+                <div class="stat-note">Coordinates available</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Location Unavailable</div>
+                <div class="stat-value" id="approxStat">{{ approximate_count }}</div>
+                <div class="stat-note">Not plotted at an invented location</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Critical Complaints</div>
+                <div class="stat-value" id="criticalStat">0</div>
+                <div class="stat-note">Across all retrieved records</div>
+            </div>
+        </section>
+
+        <section class="filters" aria-label="Map filters">
+            <div class="filter-field">
+                <label for="priorityFilter">Priority</label>
+                <select id="priorityFilter">
+                    <option value="">All priorities</option>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                    <option value="">All statuses</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="">All categories</option>
+                    <option value="Road Damage">Road Damage</option>
+                    <option value="Water Issue">Water Issue</option>
+                    <option value="Electrical Hazard">Electrical Hazard</option>
+                    <option value="Flooding">Flooding</option>
+                    <option value="Waste Management">Waste Management</option>
+                </select>
+            </div>
+
+            <button class="reset-button" id="resetFilters" type="button">
+                Reset filters
+            </button>
+        </section>
+
+        <section class="map-panel">
+            <div class="panel-header">
+                <div>
+                    <div class="panel-title">Complaint Locations</div>
+                    <div class="panel-subtitle">
+                        Select a marker to inspect its complaint details.
+                    </div>
+                </div>
+
+                <div class="map-count" id="mapCount" aria-live="polite">
+                    Loading map data...
+                </div>
+            </div>
+
+            <div id="cityMap" aria-label="Interactive complaint map"></div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#ff5e72"></span>
+                    Critical
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#ffad55"></span>
+                    High
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#e8c85a"></span>
+                    Medium
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#42d69a"></span>
+                    Low
+                </div>
+            </div>
+
+            <div class="location-note">
+                <strong>Location accuracy:</strong>
+                Only complaints with valid saved GPS coordinates appear as
+                map markers. The city or address alone is not treated as an
+                exact location. Map tiles require an internet connection.
+            </div>
+        </section>
+
+        <section class="secondary-panel">
+            <h2>Complaints without GPS coordinates</h2>
+            <p class="section-description">
+                These complaints remain visible here so they are not lost.
+                Add or capture a valid location when one is available; this
+                page does not guess coordinates.
+            </p>
+
+            <div class="complaint-list" id="unlocatedList"></div>
+        </section>
+
+        <div class="footer">
+            CivicPulse AI · Smart civic reporting and prioritization
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Flask passes only the map fields prepared by the admin route.
+        const complaints = {{ complaints | tojson }};
+
+        const map = L.map("cityMap", {
+            scrollWheelZoom: true
+        }).setView([22.9734, 78.6569], 5);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const markerLayer = L.featureGroup().addTo(map);
+
+        const priorityFilter = document.getElementById("priorityFilter");
+        const statusFilter = document.getElementById("statusFilter");
+        const categoryFilter = document.getElementById("categoryFilter");
+        const mapCount = document.getElementById("mapCount");
+        const unlocatedList = document.getElementById("unlocatedList");
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"']/g, function (char) {
+                const entities = {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                };
+
+                return entities[char];
+            });
+        }
+
+        function priorityColor(priority) {
+            const colors = {
+                "Critical": "#ff5e72",
+                "High": "#ffad55",
+                "Medium": "#e8c85a",
+                "Low": "#42d69a"
+            };
+
+            return colors[priority] || "#69a8ff";
+        }
+
+        function priorityClass(priority) {
+            const classes = {
+                "Critical": "priority-critical",
+                "High": "priority-high",
+                "Medium": "priority-medium",
+                "Low": "priority-low"
+            };
+
+            return classes[priority] || "";
+        }
+
+        function isValidCoordinatePair(item) {
+            if (item.latitude === null || item.latitude === undefined ||
+                item.longitude === null || item.longitude === undefined ||
+                item.latitude === "" || item.longitude === "") {
+                return false;
+            }
+
+            const lat = Number(item.latitude);
+            const lon = Number(item.longitude);
+
+            return Number.isFinite(lat) &&
+                Number.isFinite(lon) &&
+                lat >= -90 && lat <= 90 &&
+                lon >= -180 && lon <= 180;
+        }
+
+        function matchesFilters(item) {
+            const priority = priorityFilter.value;
+            const status = statusFilter.value;
+            const category = categoryFilter.value;
+
+            return (!priority || item.priority === priority) &&
+                (!status || item.status === status) &&
+                (!category || item.category === category);
+        }
+
+        function popupContent(item) {
+            const address = item.location_address || "Address not provided";
+            const coordinates = `${Number(item.latitude).toFixed(5)}, ${Number(item.longitude).toFixed(5)}`;
+            const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(coordinates)}`;
+
+            return `
+                <div class="popup-title">Complaint #${escapeHtml(item.id)}</div>
+                <div class="popup-line"><strong>Category:</strong> ${escapeHtml(item.category)}</div>
+                <div class="popup-line"><strong>Priority:</strong> ${escapeHtml(item.priority)} (${escapeHtml(item.priority_score)}/100)</div>
+                <div class="popup-line"><strong>Status:</strong> ${escapeHtml(item.status)}</div>
+                <div class="popup-line"><strong>City:</strong> ${escapeHtml(item.city)}</div>
+                <div class="popup-line"><strong>Address:</strong> ${escapeHtml(address)}</div>
+                <div class="popup-line"><strong>GPS:</strong> ${escapeHtml(coordinates)}</div>
+                <a class="popup-link" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">Open in Google Maps ↗</a>
+            `;
+        }
+
+        function renderUnlocatedList(items) {
+            const unlocated = items.filter(function (item) {
+                return !isValidCoordinatePair(item);
+            });
+
+            if (unlocated.length === 0) {
+                unlocatedList.innerHTML = `
+                    <div class="empty-state">
+                        No matching complaints without GPS coordinates.
+                    </div>
+                `;
+                return;
+            }
+
+            unlocatedList.innerHTML = unlocated.map(function (item) {
+                const address = item.location_address || "Address unavailable";
+                const city = item.city || "City not provided";
+
+                return `
+                    <article class="complaint-card">
+                        <div class="complaint-top">
+                            <span class="complaint-id">Complaint #${escapeHtml(item.id)}</span>
+                            <span class="pill ${priorityClass(item.priority)}">
+                                ${escapeHtml(item.priority || "Unknown")}
+                            </span>
+                        </div>
+
+                        <div class="complaint-category">
+                            ${escapeHtml(item.category)}
+                        </div>
+
+                        <div class="complaint-address">
+                            <strong>City:</strong> ${escapeHtml(city)}<br>
+                            <strong>Address:</strong> ${escapeHtml(address)}<br>
+                            <strong>Reported:</strong> ${escapeHtml(item.created_at || "Date unavailable")}
+                        </div>
+
+                        <div class="complaint-meta">
+                            <span class="pill status-pill">${escapeHtml(item.status)}</span>
+                            <span class="pill">GPS unavailable</span>
+                        </div>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function renderMap() {
+            markerLayer.clearLayers();
+
+            const filtered = complaints.filter(matchesFilters);
+            const located = filtered.filter(isValidCoordinatePair);
+
+            located.forEach(function (item) {
+                const lat = Number(item.latitude);
+                const lon = Number(item.longitude);
+                const color = priorityColor(item.priority);
+
+                const marker = L.circleMarker([lat, lon], {
+                    radius: item.priority === "Critical" ? 10 : 8,
+                    color: color,
+                    weight: 2,
+                    opacity: 1,
+                    fillColor: color,
+                    fillOpacity: 0.8
+                });
+
+                marker.bindPopup(popupContent(item));
+                marker.addTo(markerLayer);
+            });
+
+            mapCount.textContent =
+                `${located.length} GPS marker${located.length === 1 ? "" : "s"} · ${filtered.length} matching complaints`;
+
+            renderUnlocatedList(filtered);
+
+            if (located.length > 0) {
+                map.fitBounds(markerLayer.getBounds(), {
+                    padding: [35, 35],
+                    maxZoom: 14
+                });
+            } else {
+                // Avoid showing a misleading empty view at a guessed location.
+                map.setView([22.9734, 78.6569], 5);
+            }
+        }
+
+        document.getElementById("criticalStat").textContent =
+            complaints.filter(function (item) {
+                return item.priority === "Critical";
+            }).length;
+
+        priorityFilter.addEventListener("change", renderMap);
+        statusFilter.addEventListener("change", renderMap);
+        categoryFilter.addEventListener("change", renderMap);
+
+        document.getElementById("resetFilters").addEventListener("click", function () {
+            priorityFilter.value = "";
+            statusFilter.value = "";
+            categoryFilter.value = "";
+            renderMap();
+        });
+
+        renderMap();
+    </script>
+</body>
+</html>

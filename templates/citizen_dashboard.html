@@ -1,0 +1,724 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Dashboard | CivicPulse AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #071321;
+            --panel: rgba(16, 38, 58, 0.82);
+            --panel-border: rgba(148, 190, 210, 0.16);
+            --text: #edf7ff;
+            --muted: #9bb1c5;
+            --teal: #42e0bd;
+            --blue: #65b9ff;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(
+                    ellipse at 10% 5%,
+                    rgba(25, 119, 153, 0.24),
+                    transparent 36%
+                ),
+                radial-gradient(
+                    ellipse at 95% 40%,
+                    rgba(24, 173, 142, 0.14),
+                    transparent 34%
+                ),
+                linear-gradient(135deg, #071321, #0b1b2d 55%, #081522);
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .ambient {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(2px);
+            pointer-events: none;
+            z-index: -1;
+            animation: float 12s ease-in-out infinite alternate;
+        }
+
+        .ambient-one {
+            width: 260px;
+            height: 260px;
+            top: 18%;
+            right: -110px;
+            background: rgba(38, 205, 180, 0.08);
+        }
+
+        .ambient-two {
+            width: 200px;
+            height: 200px;
+            bottom: 4%;
+            left: -90px;
+            background: rgba(65, 145, 255, 0.09);
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(0) scale(1);
+            }
+            to {
+                transform: translateY(-24px) scale(1.06);
+            }
+        }
+
+        header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            padding: 20px max(22px, calc((100% - 1160px) / 2));
+            background: rgba(5, 17, 29, 0.78);
+            border-bottom: 1px solid rgba(151, 190, 215, 0.14);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            color: #06241f;
+            background: linear-gradient(135deg, #61f0cf, #38bfae);
+            box-shadow: 0 6px 24px rgba(57, 219, 186, 0.18);
+            font-size: 22px;
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .header-right strong {
+            color: var(--text);
+        }
+
+        .header-right a {
+            color: var(--teal);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .header-right a:hover {
+            color: white;
+        }
+
+        main {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 38px 22px 55px;
+            animation: appear 0.7s ease both;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .eyebrow {
+            color: var(--teal);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 10px 0;
+            font-size: clamp(29px, 4vw, 39px);
+            letter-spacing: -1px;
+        }
+
+        .muted {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .welcome-note {
+            max-width: 280px;
+            padding: 15px 18px;
+            border: 1px solid rgba(66, 224, 189, 0.2);
+            border-radius: 15px;
+            background: rgba(30, 178, 150, 0.07);
+            color: #c0f7e9;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .flash-list {
+            margin-bottom: 22px;
+        }
+
+        .flash {
+            margin: 8px 0;
+            padding: 13px 16px;
+            border: 1px solid rgba(66, 224, 189, 0.25);
+            border-radius: 12px;
+            background: rgba(30, 178, 150, 0.09);
+            color: #b9f8e6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin: 28px 0;
+        }
+
+        .stat {
+            position: relative;
+            overflow: hidden;
+            padding: 24px;
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            background: var(--panel);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(14px);
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-5px);
+            border-color: rgba(66, 224, 189, 0.38);
+        }
+
+        .stat::after {
+            content: "";
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            right: -42px;
+            bottom: -52px;
+            border-radius: 50%;
+            background: rgba(66, 224, 189, 0.06);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .stat p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .stat-icon {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(66, 224, 189, 0.1);
+            color: var(--teal);
+            font-size: 20px;
+        }
+
+        .stat h2 {
+            margin: 18px 0 0;
+            font-size: 35px;
+            letter-spacing: -1px;
+        }
+
+        .stat:nth-child(2) .stat-icon {
+            color: #ffc46b;
+            background: rgba(255, 196, 107, 0.1);
+        }
+
+        .stat:nth-child(3) .stat-icon {
+            color: #70dca0;
+            background: rgba(112, 220, 160, 0.1);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 45px;
+            padding: 12px 17px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #54e6c2, #26b99c);
+            color: #06241f;
+            text-decoration: none;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(40, 207, 170, 0.16);
+        }
+
+        .secondary {
+            background: rgba(255, 255, 255, 0.035);
+            border-color: rgba(148, 190, 210, 0.22);
+            color: #e4f1fa;
+        }
+
+        .secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+        }
+
+        .panel {
+            overflow: hidden;
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            background: var(--panel);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(14px);
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 24px 24px 18px;
+        }
+
+        .panel-heading h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .panel-heading p {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .complaint-count {
+            padding: 7px 11px;
+            border: 1px solid rgba(66, 224, 189, 0.2);
+            border-radius: 30px;
+            background: rgba(66, 224, 189, 0.08);
+            color: var(--teal);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 18px;
+            border-bottom: 1px solid rgba(148, 190, 210, 0.1);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.025);
+            color: #9fb5c8;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #dce9f4;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .complaint-id {
+            color: var(--teal);
+            font-weight: 800;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #dbe7f1;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .status-submitted {
+            border-color: rgba(255, 196, 107, 0.25);
+            background: rgba(255, 196, 107, 0.09);
+            color: #ffd18b;
+        }
+
+        .status-progress {
+            border-color: rgba(101, 185, 255, 0.25);
+            background: rgba(101, 185, 255, 0.09);
+            color: #9bd2ff;
+        }
+
+        .status-resolved {
+            border-color: rgba(112, 220, 160, 0.25);
+            background: rgba(112, 220, 160, 0.09);
+            color: #8cebb2;
+        }
+
+        .empty {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: grid;
+            place-items: center;
+            width: 66px;
+            height: 66px;
+            margin: 0 auto 18px;
+            border: 1px solid rgba(66, 224, 189, 0.2);
+            border-radius: 20px;
+            background: rgba(66, 224, 189, 0.08);
+            color: var(--teal);
+            font-size: 29px;
+        }
+
+        .empty h3 {
+            margin: 0 0 10px;
+        }
+
+        .empty p {
+            max-width: 410px;
+            margin: 0 auto 20px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        footer {
+            padding: 22px;
+            color: #71899e;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 720px) {
+            header {
+                padding: 18px 20px;
+            }
+
+            main {
+                padding: 28px 16px 40px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 13px;
+            }
+
+            .stat {
+                padding: 20px;
+            }
+
+            .stat h2 {
+                font-size: 30px;
+            }
+
+            .welcome-note {
+                max-width: none;
+                width: 100%;
+            }
+
+            .panel-heading {
+                padding: 20px 17px;
+            }
+
+            .actions {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .actions .button,
+            .actions form,
+            .actions form button {
+                width: 100%;
+            }
+
+            .header-right {
+                font-size: 13px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <header>
+        <div class="brand">
+            <div class="brand-icon" aria-hidden="true">⌂</div>
+            <div>
+                CivicPulse AI
+                <small>Citizen Portal</small>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <span>Welcome, <strong>{{ user_name }}</strong></span>
+            <span aria-hidden="true">·</span>
+            <a href="{{ url_for('home') }}">Home ↗</a>
+        </div>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-list" aria-live="polite">
+                    {% for category, message in messages %}
+                        <div class="flash" role="status">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="welcome">
+            <div>
+                <div class="eyebrow">Your civic activity</div>
+                <h1>My Dashboard</h1>
+                <p class="muted">
+                    Every report matters. Track the civic issues you've
+                    raised and follow their progress in one place.
+                </p>
+            </div>
+
+            <div class="welcome-note">
+                <strong>Making a difference, one report at a time.</strong>
+                <br>
+                Thank you for helping make your community better.
+            </div>
+        </section>
+
+        <section class="stats" aria-label="Complaint statistics">
+            <article class="stat">
+                <div class="stat-top">
+                    <p>Total complaints</p>
+                    <div class="stat-icon" aria-hidden="true">▤</div>
+                </div>
+                <h2>{{ total }}</h2>
+            </article>
+
+            <article class="stat">
+                <div class="stat-top">
+                    <p>Pending / In progress</p>
+                    <div class="stat-icon" aria-hidden="true">◷</div>
+                </div>
+                <h2>{{ pending }}</h2>
+            </article>
+
+            <article class="stat">
+                <div class="stat-top">
+                    <p>Resolved</p>
+                    <div class="stat-icon" aria-hidden="true">✓</div>
+                </div>
+                <h2>{{ resolved }}</h2>
+            </article>
+        </section>
+
+        <div class="actions">
+            <a class="button" href="{{ url_for('home') }}">
+                <span aria-hidden="true">＋</span> Submit complaint
+            </a>
+
+            <a class="button secondary"
+               href="{{ url_for('track_complaint') }}">
+                Track by ID ↗
+            </a>
+
+            <form method="POST" action="{{ url_for('citizen.logout') }}">
+                <button class="button secondary" type="submit">
+                    Log out ↗
+                </button>
+            </form>
+        </div>
+
+        <section class="panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>My complaints</h2>
+                    <p>Review your submitted civic issues and their latest status.</p>
+                </div>
+
+                <span class="complaint-count">
+                    {{ total }} report{% if total != 1 %}s{% endif %}
+                </span>
+            </div>
+
+            {% if complaints %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>City</th>
+                                <th>Issue</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for item in complaints %}
+                                <tr>
+                                    <td class="complaint-id">#{{ item.id }}</td>
+                                    <td>{{ item.city }}</td>
+                                    <td>{{ item.complaint }}</td>
+                                    <td>{{ item.category }}</td>
+                                    <td>
+                                        {% set normalized_status = item.status | lower %}
+                                        {% if normalized_status == 'resolved' %}
+                                            <span class="status status-resolved">
+                                                {{ item.status }}
+                                            </span>
+                                        {% elif normalized_status in ['in progress', 'in-progress', 'processing'] %}
+                                            <span class="status status-progress">
+                                                {{ item.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="status status-submitted">
+                                                {{ item.status }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.created_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty">
+                    <div class="empty-icon" aria-hidden="true">⌂</div>
+                    <h3>No complaints yet</h3>
+                    <p>
+                        You haven't submitted any complaints through this account.
+                        Once you report an issue while logged in, it will appear here.
+                    </p>
+                    <a class="button" href="{{ url_for('home') }}">
+                        ＋ Submit your first complaint
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        CivicPulse AI · Building better communities together
+    </footer>
+</body>
+</html>

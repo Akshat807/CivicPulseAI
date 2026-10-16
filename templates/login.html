@@ -4,147 +4,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Admin Login | CivicPulse AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --navy: #071426;
+            --navy-light: #102642;
+            --cyan: #50e3d0;
+            --teal: #20b486;
+            --white: #f4fbff;
+            --muted: #a4b8cb;
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--navy);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'DM Sans', 'Segoe UI', sans-serif;
+            color: var(--white);
+            background: var(--navy);
+        }
+
         .login-page {
+            position: relative;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
-            background: #f3f7f6;
+            overflow: hidden;
+            padding: 32px 20px;
+            isolation: isolate;
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(32, 180, 134, 0.17),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(80, 227, 208, 0.13),
+                    transparent 30%
+                ),
+                linear-gradient(135deg, #071426, #0b1c32 55%, #071426);
+        }
+
+        .ambient {
+            position: absolute;
+            z-index: -1;
+            width: 330px;
+            height: 330px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.22;
+            pointer-events: none;
+            animation: ambientFloat 9s ease-in-out infinite alternate;
+        }
+
+        .ambient-one {
+            top: -140px;
+            left: -100px;
+            background: #20b486;
+        }
+
+        .ambient-two {
+            right: -120px;
+            bottom: -140px;
+            background: #2b80bd;
+            animation-delay: -4s;
+        }
+
+        .login-shell {
+            width: 100%;
+            max-width: 440px;
+            animation: cardEnter 0.8s cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+        .brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 43px;
+            height: 43px;
+            border-radius: 14px;
+            color: #06201b;
+            background: linear-gradient(135deg, var(--cyan), var(--teal));
+            box-shadow: 0 8px 28px rgba(32, 180, 134, 0.22);
+        }
+
+        .brand-name span {
+            color: var(--cyan);
         }
 
         .login-card {
+            position: relative;
+            overflow: hidden;
+            padding: 38px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            background: rgba(13, 31, 53, 0.82);
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.34),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
-            max-width: 420px;
-            padding: 36px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 16px 45px rgba(15, 40, 55, 0.12);
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                var(--cyan),
+                var(--teal),
+                transparent
+            );
+            animation: borderSweep 5s ease-in-out infinite;
         }
 
-        .login-card h1 {
-            margin-bottom: 8px;
-            color: #102b3a;
+        .security-icon {
+            display: grid;
+            place-items: center;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 22px;
+            border: 1px solid rgba(80, 227, 208, 0.24);
+            border-radius: 18px;
+            color: var(--cyan);
+            background: rgba(80, 227, 208, 0.08);
+            font-size: 26px;
+            animation: iconPulse 3s ease-in-out infinite;
         }
 
-        .login-subtitle {
-            margin-bottom: 28px;
-            color: #647782;
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.2px;
+            text-transform: uppercase;
         }
 
-        .login-card label {
+        h1 {
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(28px, 6vw, 34px);
+            letter-spacing: -1.2px;
+        }
+
+        .subtitle {
+            margin: 12px 0 28px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .flash-message {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 110, 110, 0.25);
+            border-radius: 11px;
+            color: #ffc5c5;
+            background: rgba(255, 80, 80, 0.09);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
             display: block;
-            margin: 16px 0 8px;
+            margin-bottom: 9px;
+            color: #dce8f4;
+            font-size: 13px;
             font-weight: 600;
         }
 
-        .login-card input {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #d4dfdf;
-            border-radius: 10px;
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #88a4bd;
             font-size: 16px;
+            pointer-events: none;
         }
 
-        
-.login-card button {
-    display: block;
-    width: 100%;
-    margin-top: 24px;
-    padding: 14px 18px;
-
-    background-color: #157f69 !important;
-    color: #ffffff !important;
-
-    border: 2px solid #106854;
-    border-radius: 10px;
-
-    font-size: 16px;
-    font-weight: 700;
-    text-align: center;
-
-    cursor: pointer;
-    opacity: 1;
-    visibility: visible;
-    box-shadow: 0 4px 10px rgba(21, 127, 105, 0.25);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.login-card button:hover {
-    background-color: #106854 !important;
-    color: #ffffff !important;
-    box-shadow: 0 6px 14px rgba(21, 127, 105, 0.35);
-}
-
-.login-card button:focus-visible {
-    outline: 3px solid #79d8bd;
-    outline-offset: 3px;
-}
-
-
-        .login-card button:hover {
-            background: #106854;
+        input {
+            width: 100%;
+            min-height: 51px;
+            padding: 13px 15px 13px 43px;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 12px;
+            outline: none;
+            color: var(--white);
+            background: rgba(3, 14, 27, 0.48);
+            font-family: inherit;
+            font-size: 14px;
+            transition:
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                background-color 0.25s ease;
         }
 
-        .login-message {
-            margin: 12px 0;
-            color: #b42318;
+        input::placeholder {
+            color: #6f879e;
         }
 
-        .login-footer {
-            margin-top: 24px;
+        input:focus {
+            border-color: var(--cyan);
+            background: rgba(3, 14, 27, 0.75);
+            box-shadow: 0 0 0 4px rgba(80, 227, 208, 0.09);
+        }
+
+        .sign-in-button {
+            position: relative;
+            width: 100%;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            overflow: hidden;
+            border: none;
+            border-radius: 12px;
+            color: #06201b;
+            background: linear-gradient(110deg, #50e3d0, #20b486);
+            box-shadow: 0 10px 25px rgba(32, 180, 134, 0.18);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                filter 0.25s ease;
+        }
+
+        .sign-in-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(32, 180, 134, 0.28);
+            filter: brightness(1.06);
+        }
+
+        .sign-in-button:active {
+            transform: translateY(0);
+        }
+
+        .sign-in-button:focus-visible,
+        .back-link:focus-visible {
+            outline: 3px solid var(--cyan);
+            outline-offset: 4px;
+        }
+
+        .button-arrow {
+            transition: transform 0.25s ease;
+        }
+
+        .sign-in-button:hover .button-arrow {
+            transform: translateX(4px);
+        }
+
+        .secure-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 22px;
+            color: #8ca6bd;
+            font-size: 11px;
+        }
+
+        .secure-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 10px rgba(32, 180, 134, 0.6);
+        }
+
+        .back-link {
+            display: flex;
+            justify-content: center;
+            width: fit-content;
+            margin: 25px auto 0;
+            color: #a4b8cb;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            color: #617b94;
+            font-size: 11px;
             text-align: center;
         }
 
-        .login-footer a {
-            color: #157f69;
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes ambientFloat {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+            to {
+                transform: translate(35px, 25px) scale(1.12);
+            }
+        }
+
+        @keyframes borderSweep {
+            0%, 15% {
+                left: -100%;
+            }
+            65%, 100% {
+                left: 100%;
+            }
+        }
+
+        @keyframes iconPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(80, 227, 208, 0);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(80, 227, 208, 0.035);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-page {
+                padding: 24px 15px;
+            }
+
+            .login-card {
+                padding: 28px 23px;
+                border-radius: 20px;
+            }
+
+            .brand {
+                margin-bottom: 24px;
+                font-size: 23px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
+
 <body>
     <main class="login-page">
-        <section class="login-card">
-            <h1>Admin Login</h1>
-            <p class="login-subtitle">
-                Sign in to manage CivicPulse AI complaints.
+        <div class="ambient ambient-one"></div>
+        <div class="ambient ambient-two"></div>
+
+        <div class="login-shell">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">🏙️</div>
+                <div class="brand-name">CivicPulse <span>AI.</span></div>
+            </div>
+
+            <section class="login-card">
+                <div class="security-icon" aria-hidden="true">🔐</div>
+
+                <p class="eyebrow">Restricted access</p>
+                <h1>Welcome back.</h1>
+                <p class="subtitle">
+                    Sign in to manage civic reports, review complaints,
+                    and keep your community moving forward.
+                </p>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="flash-message" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrap">
+                            <span class="input-icon" aria-hidden="true">👤</span>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username"
+                                autocomplete="username"
+                                required
+                                autofocus
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrap">
+                            <span class="input-icon" aria-hidden="true">●</span>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <button class="sign-in-button" type="submit">
+                        Sign In to Dashboard
+                        <span class="button-arrow" aria-hidden="true">→</span>
+                    </button>
+                </form>
+
+                <div class="secure-note">
+                    <span class="secure-dot"></span>
+                    Secure administrator access
+                </div>
+            </section>
+
+            <a class="back-link" href="{{ url_for('home') }}">
+                ← Back to CivicPulse homepage
+            </a>
+
+            <p class="footer-note">
+                CivicPulse AI · Technology for better communities
             </p>
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% for category, message in messages %}
-                    <p class="login-message">{{ message }}</p>
-                {% endfor %}
-            {% endwith %}
-
-            <form method="POST" action="{{ url_for('login') }}">
-                <label for="username">Username</label>
-                <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    autocomplete="username"
-                    required
-                >
-
-                <label for="password">Password</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                >
-
-                <button type="submit">Sign In</button>
-            </form>
-
-            <p class="login-footer">
-                <a href="{{ url_for('home') }}">Back to CivicPulse AI</a>
-            </p>
-        </section>
+        </div>
     </main>
 </body>
 </html>

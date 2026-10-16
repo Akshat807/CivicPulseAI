@@ -1,410 +1,1012 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CivicPulse AI | Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>CivicPulse AI | Admin Dashboard</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #101d2e;
+      --panel2: #0d1929;
+      --text: #eaf2fb;
+      --muted: #9bb0c8;
+      --teal: #35d0bd;
+      --line: #263951;
+      --red: #ff647c;
+      --orange: #ffb454;
+      --green: #55d6a2;
+      --blue: #9cc2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(ellipse at 12% 0%, rgba(53,208,189,.09), transparent 34%),
+        linear-gradient(145deg, #07111f, #0b192a 55%, #081421);
+    }
+    a { color: var(--teal); text-decoration: none; }
+    button, input, select { font: inherit; }
+    .wrap { max-width: 1540px; margin: auto; padding: 26px; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font-size: 25px; font-weight: 850; letter-spacing: -.7px; }
+    .brand span, .accent { color: var(--teal); }
+    .sub { color: var(--muted); font-size: 12px; line-height: 1.6; margin-top: 6px; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-btn, .logout button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #122238;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .nav-btn:hover, .logout button:hover {
+      border-color: var(--teal);
+      background: #173449;
+    }
+    h1 { font-size: clamp(25px, 3vw, 34px); margin: 0 0 8px; letter-spacing: -.8px; }
+    .muted { color: var(--muted); }
+    .heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .eyebrow {
+      color: var(--teal);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+    .secure {
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .flash {
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 10px 0 16px;
+      background: #15372f;
+      border: 1px solid #286657;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .flash.error {
+      background: #401d2a;
+      border-color: #77354a;
+      color: #ffc0c8;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 22px 0 15px;
+    }
+    .card, .panel {
+      background: linear-gradient(160deg, rgba(16,29,46,.98), rgba(13,25,41,.98));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 14px 36px rgba(0,0,0,.12);
+    }
+    .card { padding: 19px; min-width: 0; }
+    .stat-label { font-size: 12px; color: var(--muted); }
+    .stat-value { font-size: 30px; font-weight: 850; margin-top: 9px; overflow-wrap: anywhere; }
+    .teal { color: var(--teal); }
+    .orange { color: var(--orange); }
+    .red { color: var(--red); }
+    .green { color: var(--green); }
+    .blue { color: var(--blue); }
+    .priority-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 0 24px;
+    }
+    .priority-card {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(16,29,46,.72);
+      padding: 15px 17px;
+    }
+    .priority-card .stat-value { font-size: 25px; margin-top: 7px; }
+    .critical { color: var(--red); }
+    .high { color: var(--orange); }
+    .medium { color: #f0d47a; }
+    .low { color: var(--green); }
+    .panel { padding: 22px; margin-bottom: 22px; }
+    .panel-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .panel-heading h2 { font-size: 17px; margin: 0; }
+    .panel-heading p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 6px 0 0;
+    }
+    .panel-tag {
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 10px;
+    }
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 28px;
+    }
+    .category-item { min-width: 0; }
+    .category-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .category-label span { overflow-wrap: anywhere; }
+    .category-label strong { color: var(--teal); white-space: nowrap; }
+    .bar-bg { height: 8px; border-radius: 20px; overflow: hidden; background: #24354a; }
+    .bar {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #20b486, #42e0bd);
+    }
+    /* Analytics */
+    .analytics-insights {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .insight-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(16,29,46,.72);
+      min-width: 0;
+    }
+    .insight-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--teal);
+      font-size: 13px;
+    }
+    .insight-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .analytics-grid .panel { margin: 0; min-width: 0; }
+    .analytics-chart {
+      position: relative;
+      width: 100%;
+      height: 290px;
+      min-width: 0;
+    }
+    .chart-fallback {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      padding: 10px 0;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(190px, 1.6fr) repeat(3, minmax(130px, 1fr)) auto;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .filters input, .filters select, .status-form select {
+      width: 100%;
+      min-width: 0;
+      background: #f7fafc;
+      color: #132238;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      padding: 10px 11px;
+      font-size: 12px;
+      min-height: 41px;
+    }
+    .primary {
+      background: var(--teal);
+      color: #06201e;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 16px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    .primary:hover { filter: brightness(1.06); }
+    .filter-actions { display: flex; gap: 8px; }
+    .reset {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--muted);
+      background: #122238;
+      font-size: 12px;
+    }
+    .results { font-size: 12px; color: var(--muted); margin: 12px 0; }
+    .results strong { color: var(--teal); }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1450px;
+      background: #0d1929;
+    }
+    th, td {
+      text-align: left;
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    th {
+      background: #14243a;
+      color: #bcd0e5;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    tbody tr:hover td { background: #122238; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .complaint {
+      max-width: 270px;
+      min-width: 180px;
+      overflow-wrap: anywhere;
+    }
+    .reason {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+      max-width: 270px;
+      margin-top: 5px;
+      overflow-wrap: anywhere;
+    }
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-weight: 800;
+      font-size: 10px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .p-Critical { color: #ff8a9b; background: #4a1d2a; border-color: #713043; }
+    .p-High { color: #ffc477; background: #422d18; border-color: #6e4a23; }
+    .p-Medium { color: #f0d47a; background: #39321b; border-color: #625527; }
+    .p-Low { color: #75e2b6; background: #17382e; border-color: #285c49; }
+    .s-Submitted { color: var(--blue); }
+    .s-In-Progress { color: var(--orange); }
+    .s-Resolved { color: var(--green); }
+    .score { font-weight: 850; white-space: nowrap; margin-top: 6px; }
+    .scorebar { height: 5px; background: #24354a; border-radius: 8px; overflow: hidden; margin-top: 7px; min-width: 70px; }
+    .scorebar span { display: block; height: 100%; background: var(--teal); }
+    .status-form { display: flex; gap: 7px; min-width: 205px; align-items: center; }
+    .status-form select { min-width: 120px; padding: 8px; min-height: 35px; }
+    .status-form button {
+      background: #243d54;
+      color: #eaf2fb;
+      border: 1px solid #385570;
+      border-radius: 8px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 750;
+    }
+    .status-form button:hover { border-color: var(--teal); }
+    .location-link { display: inline-block; margin-top: 6px; font-size: 11px; }
+    .location-missing { color: #71869b; font-size: 11px; }
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 17px 2px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pages { display: flex; gap: 7px; align-items: center; }
+    .pages a, .pages span { padding: 8px 11px; border: 1px solid var(--line); border-radius: 8px; }
+    .pages .active { background: var(--teal); color: #06201e; border-color: var(--teal); font-weight: 850; }
+    .pages .disabled { opacity: .4; }
+    .empty { text-align: center; padding: 38px; color: var(--muted); font-size: 13px; }
+    .footnote { font-size: 11px; color: var(--muted); line-height: 1.7; margin-top: 18px; }
+    @media (max-width: 1100px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters .search { grid-column: 1 / -1; }
+      .filter-actions { grid-column: 1 / -1; }
+    }
+    @media (max-width: 750px) {
+      .analytics-grid, .analytics-insights { grid-template-columns: 1fr; }
+      .analytics-chart { height: 250px; }
+    }
+    @media (max-width: 650px) {
+      .wrap { padding: 15px; }
+      .brand { font-size: 22px; }
+      .stats, .priority-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .card, .priority-card { padding: 15px; }
+      .stat-value { font-size: 25px; }
+      .panel { padding: 16px 12px; }
+      .category-grid, .filters { grid-template-columns: 1fr; }
+      .filters .search, .filter-actions { grid-column: auto; }
+      .header-actions { width: 100%; }
+      .nav-btn { flex: 1; }
+      .logout { flex: 1; }
+      .logout button { width: 100%; }
+      .secure { display: none; }
+    }
+    
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f6fb;
-            color: #172b4d;
-        }
+/* AI-Powered Insights panel */
+#ai-powered-insights {
+    margin-top: 24px;
+    padding: 24px;
+    background: #F1F5F9;
+    border: 1px solid #DCE5EE;
+    border-radius: 18px;
+}
 
-        header {
-            background: #102746;
-            color: white;
-            padding: 24px 6%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+#ai-powered-insights .panel-heading {
+    margin-bottom: 18px;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 26px;
-        }
+#ai-powered-insights .panel-heading h2 {
+    color: #1E293B;
+}
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+#ai-powered-insights .panel-heading p {
+    color: #64748B;
+}
 
-        .header-actions a,
-        .logout-btn {
-            color: white;
-            text-decoration: none;
-            background: #20b486;
-            padding: 11px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: inherit;
-        }
+#ai-powered-insights .panel-tag {
+    background: #FFFFFF;
+    color: #475569;
+    border: 1px solid #DCE5EE;
+}
 
-        .header-actions a:hover,
-        .logout-btn:hover {
-            background: #13815f;
-        }
+#ai-powered-insights .analytics-insights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
 
-        .logout-form {
-            margin: 0;
-        }
+#ai-powered-insights .insight-card {
+    padding: 18px;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    background: #FFFFFF;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-        .container {
-            width: 92%;
-            max-width: 1250px;
-            margin: 30px auto;
-        }
+#ai-powered-insights .insight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 18px;
-            margin-bottom: 28px;
-        }
+#ai-powered-insights .insight-card > strong:first-child {
+    display: block;
+    margin-bottom: 10px;
+    color: #0D9488;
+    font-size: 16px;
+}
 
-        .stat-card,
-        .panel {
-            background: white;
-            padding: 22px;
-            border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(16, 39, 70, 0.06);
-        }
+#ai-powered-insights .insight-card p {
+    margin: 8px 0 0;
+    color: #64748B;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
 
-        .stat-card p {
-            color: #65758b;
-            margin: 0 0 12px;
-        }
+#ai-powered-insights .insight-card p strong {
+    color: #0F766E;
+}
 
-        .stat-card h2 {
-            margin: 0;
-            font-size: 30px;
-        }
+@media (max-width: 700px) {
+    #ai-powered-insights .analytics-insights {
+        grid-template-columns: 1fr;
+    }
 
-        .panel {
-            margin-bottom: 26px;
-        }
+    #ai-powered-insights {
+        padding: 16px;
+    }
+}
 
-        .panel h2 {
-            margin-top: 0;
-            font-size: 21px;
-        }
 
-        .flash {
-            padding: 13px 16px;
-            border-radius: 8px;
-            margin-bottom: 18px;
-        }
 
-        .flash.success {
-            background: #d9f8e9;
-            color: #116747;
-        }
+/* AI Insights — cohesive dark theme */
+#ai-powered-insights {
+    background: #26364A !important;
+    background-color: #26364A !important;
+    border: 1px solid #3A5069 !important;
+    border-radius: 18px;
+}
 
-        .flash.error {
-            background: #ffe3e3;
-            color: #a32020;
-        }
+/* Heading and description */
+#ai-powered-insights .panel-heading h2 {
+    color: #EAF2FB !important;
+}
 
-        .category-row {
-            margin: 18px 0;
-        }
+#ai-powered-insights .panel-heading p {
+    color: #B5C5D8 !important;
+}
 
-        .category-label {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
+#ai-powered-insights .panel-tag {
+    background: #1B2A3D !important;
+    color: #B5C5D8 !important;
+    border-color: #40556D !important;
+}
 
-        .bar-background {
-            height: 10px;
-            background: #e8edf4;
-            border-radius: 20px;
-            overflow: hidden;
-        }
+/* Insight cards */
+#ai-powered-insights .insight-card {
+    background: #172638 !important;
+    background-color: #172638 !important;
+    border: 1px solid #3A5069 !important;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
 
-        .bar {
-            height: 100%;
-            background: #20b486;
-            border-radius: 20px;
-        }
+#ai-powered-insights .insight-card > strong:first-child {
+    color: #35D0BD !important;
+}
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
+#ai-powered-insights .insight-card p {
+    color: #B5C5D8 !important;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 850px;
-        }
+#ai-powered-insights .insight-card p strong {
+    color: #35D0BD !important;
+}
 
-        th,
-        td {
-            text-align: left;
-            padding: 14px 12px;
-            border-bottom: 1px solid #e8edf4;
-            vertical-align: top;
-        }
+#ai-powered-insights .insight-card:hover {
+    background: #1C2D41 !important;
+    border-color: #35D0BD !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
 
-        th {
-            color: #65758b;
-            font-size: 13px;
-            background: #f8fafc;
-        }
 
-        td {
-            font-size: 14px;
-        }
-
-        .status-form {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            min-width: 220px;
-        }
-
-        select {
-            padding: 9px;
-            border: 1px solid #ccd6e3;
-            border-radius: 7px;
-            background: white;
-            color: #172b4d;
-            min-width: 125px;
-        }
-
-        .update-btn {
-            border: none;
-            border-radius: 7px;
-            padding: 10px 12px;
-            background: #20b486;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .update-btn:hover {
-            background: #13815f;
-        }
-
-        .empty {
-            text-align: center;
-            color: #65758b;
-            padding: 25px;
-        }
-
-        @media (max-width: 850px) {
-            .stats {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            header h1 {
-                font-size: 22px;
-            }
-
-            .container {
-                width: 94%;
-            }
-        }
-    </style>
+  </style>
 </head>
-
 <body>
-
-<header>
-    <h1>🛠️ CivicPulse AI Admin</h1>
-
-    <div class="header-actions">
-        <a href="{{ url_for('home') }}">← Back to Website</a>
-
-        <form
-            class="logout-form"
-            method="POST"
-            action="{{ url_for('logout') }}"
-        >
-            <button class="logout-btn" type="submit">
-                Logout ↗
-            </button>
-        </form>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">📍 CivicPulse <span>AI</span></div>
+      <div class="sub">Smart civic complaint management · Priority Engine 2.0</div>
     </div>
-</header>
-
-<main class="container">
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-    {% endwith %}
-
-    <section class="stats">
-
-        <div class="stat-card">
-            <p>Total Complaints</p>
-            <h2>{{ total_complaints }}</h2>
-        </div>
-
-        <div class="stat-card">
-            <p>🟡 Submitted</p>
-            <h2>{{ submitted_count }}</h2>
-        </div>
-
-        <div class="stat-card">
-            <p>🔵 In Progress</p>
-            <h2>{{ in_progress_count }}</h2>
-        </div>
-
-        <div class="stat-card">
-            <p>🟢 Resolved</p>
-            <h2>{{ resolved_count }}</h2>
-        </div>
-
-    </section>
-
-    <section class="panel">
-        <h2>📊 Complaints by Category</h2>
-
-        {% set max_category = namespace(value=1) %}
-
+    <div class="header-actions">
+      <a class="nav-btn" href="{{ url_for('home') }}">← Back to Website</a>
+      <a class="nav-btn" href="{{ url_for('admin_map') }}">🗺️ Complaint Map</a>
+      <form class="logout" method="post" action="{{ url_for('logout') }}">
+        <button type="submit">Log out ↗</button>
+      </form>
+    </div>
+  </header>
+  <section class="heading">
+    <div>
+      <div class="eyebrow">● Admin Control Center</div>
+      <h1>Dashboard <span class="accent">Overview.</span></h1>
+      <div class="muted" style="font-size:13px;line-height:1.7">
+        Review citizen complaints, monitor urgency, and update resolution status.
+      </div>
+    </div>
+    <div class="secure">🛡️ Secure Admin Session</div>
+  </section>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ 'error' if category == 'error' else '' }}" role="status">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+  <section class="stats" aria-label="Complaint statistics">
+    <div class="card">
+      <div class="stat-label">Total complaints</div>
+      <div class="stat-value teal">{{ total_complaints }}</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Submitted</div>
+      <div class="stat-value blue">{{ submitted_count }}</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">In progress</div>
+      <div class="stat-value orange">{{ in_progress_count }}</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Resolved</div>
+      <div class="stat-value green">{{ resolved_count }}</div>
+    </div>
+  </section>
+  <section class="priority-stats" aria-label="Priority statistics">
+    <div class="priority-card">
+      <div class="stat-label">Critical priority</div>
+      <div class="stat-value critical">{{ priority_counts.get('Critical', 0) }}</div>
+    </div>
+    <div class="priority-card">
+      <div class="stat-label">High priority</div>
+      <div class="stat-value high">{{ priority_counts.get('High', 0) }}</div>
+    </div>
+    <div class="priority-card">
+      <div class="stat-label">Medium priority</div>
+      <div class="stat-value medium">{{ priority_counts.get('Medium', 0) }}</div>
+    </div>
+    <div class="priority-card">
+      <div class="stat-label">Low priority</div>
+      <div class="stat-value low">{{ priority_counts.get('Low', 0) }}</div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <h2>AI Category Analytics</h2>
+        <p>Complaint distribution by the model-predicted category.</p>
+      </div>
+      <span class="panel-tag">All recorded complaints</span>
+    </div>
+    {% set category_total = category_counts|sum(attribute='total') %}
+    {% if category_counts %}
+      <div class="category-grid">
         {% for item in category_counts %}
-            {% if item.total > max_category.value %}
-                {% set max_category.value = item.total %}
-            {% endif %}
+          <div class="category-item">
+            <div class="category-label">
+              <span>{{ item.category }}</span>
+              <strong>
+                {{ item.total }} ·
+                {{ ((item.total / category_total * 100)|round(1)) if category_total else 0 }}%
+              </strong>
+            </div>
+            <div class="bar-bg">
+              <div class="bar" style="width:{{ ((item.total / category_total * 100) if category_total else 0)|round(2) }}%"></div>
+            </div>
+          </div>
         {% endfor %}
-
+      </div>
+    {% else %}
+      <div class="empty">No complaints recorded yet.</div>
+    {% endif %}
+  </section>
+  <!-- AI Analytics Dashboard -->
+  <section class="panel" id="ai-analytics">
+    <div class="panel-heading">
+      <div>
+        <div class="eyebrow">Data-driven overview</div>
+        <h2>AI Analytics Dashboard</h2>
+        <p>Trends, categories, priorities and workflow statistics from the complaint database.</p>
+      </div>
+      <span class="panel-tag">Live database statistics</span>
+    </div>
+    {% set resolved_percent = ((resolved_count / total_complaints * 100) if total_complaints else 0)|round(1) %}
+    {% set urgent_count = priority_counts.get('Critical', 0) + priority_counts.get('High', 0) %}
+    <div class="analytics-insights">
+      <div class="insight-card">
+        <strong>Resolution rate</strong>
+        <p>{{ resolved_percent }}% of recorded complaints are marked Resolved.</p>
+      </div>
+      <div class="insight-card">
+        <strong>Urgent workload</strong>
+        <p>{{ urgent_count }} complaints are marked Critical or High priority. Review these first.</p>
+      </div>
+      <div class="insight-card">
+        <strong>Most common category</strong>
         {% if category_counts %}
-
-            {% for item in category_counts %}
-                <div class="category-row">
-
-                    <div class="category-label">
-                        <span>{{ item.category }}</span>
-                        <strong>{{ item.total }}</strong>
-                    </div>
-
-                    <div class="bar-background">
-                        <div
-                            class="bar"
-                            style="width: {{ (item.total / max_category.value * 100)|round }}%;"
-                        ></div>
-                    </div>
-
-                </div>
-            {% endfor %}
-
+          <p>{{ category_counts[0].category }} has {{ category_counts[0].total }} recorded complaints.</p>
         {% else %}
-            <p>No complaints have been submitted yet.</p>
+          <p>No complaint data is available yet.</p>
         {% endif %}
-    </section>
+      </div>
+      <div class="insight-card">
+        <strong>Average resolution time</strong>
+        {% if resolution_analytics and resolution_analytics.average_hours is not none %}
+          <p>{{ "%.1f"|format(resolution_analytics.average_hours) }} hours across {{ resolution_analytics.resolved_with_timestamps }} resolved complaints with recorded timestamps.</p>
+        {% else %}
+          <p>No resolution-time data yet. Newly resolved complaints will be included automatically.</p>
+        {% endif %}
+      </div>
+    </div>
+    
+<!-- AI-Powered Insights -->
+<div class="panel" id="ai-powered-insights">
+  <div class="panel-heading">
+    <div>
+      <div class="eyebrow">AI recommendations</div>
+      <h2>AI-Powered Insights</h2>
+      <p>
+        Actionable recommendations generated from current complaint statistics.
+      </p>
+    </div>
+    <span class="panel-tag">Smart insights</span>
+  </div>
 
-    <section class="panel">
-        <h2>📋 Manage Complaints</h2>
-        <p>Choose a new status and click Update Status to save it.</p>
-
-        <div class="table-wrapper">
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>City</th>
-                        <th>Complaint</th>
-                        <th>AI Category</th>
-                        <th>Current Status</th>
-                        <th>Update Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for item in recent_complaints %}
-                        <tr>
-                            <td>#{{ item.id }}</td>
-                            <td>{{ item.city }}</td>
-                            <td>{{ item.complaint }}</td>
-                            <td>{{ item.category }}</td>
-                            <td>{{ item.status }}</td>
-
-                            <td>
-                                <form
-                                    class="status-form"
-                                    method="POST"
-                                    action="{{ url_for('admin') }}"
-                                >
-                                    <input
-                                        type="hidden"
-                                        name="complaint_id"
-                                        value="{{ item.id }}"
-                                    >
-
-                                    <select name="status" required>
-                                        <option
-                                            value="Submitted"
-                                            {% if item.status == "Submitted" %}selected{% endif %}
-                                        >
-                                            Submitted
-                                        </option>
-
-                                        <option
-                                            value="In Progress"
-                                            {% if item.status == "In Progress" %}selected{% endif %}
-                                        >
-                                            In Progress
-                                        </option>
-
-                                        <option
-                                            value="Resolved"
-                                            {% if item.status == "Resolved" %}selected{% endif %}
-                                        >
-                                            Resolved
-                                        </option>
-                                    </select>
-
-                                    <button class="update-btn" type="submit">
-                                        Update
-                                    </button>
-                                </form>
-                            </td>
-
-                            <td>{{ item.created_at }}</td>
-                        </tr>
-
-                    {% else %}
-                        <tr>
-                            <td colspan="7" class="empty">
-                                No complaints available yet.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
+  {% if ai_insights %}
+    <div class="analytics-insights">
+      {% for insight in ai_insights %}
+        <div class="insight-card">
+          <strong>{{ insight.title }}</strong>
+          <p>{{ insight.message }}</p>
+          <p>
+            <strong>Recommended action:</strong>
+            {{ insight.recommendation }}
+          </p>
         </div>
-    </section>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="insight-card">
+      <strong>No insights available</strong>
+      <p>Insights will appear when complaint statistics are available.</p>
+    </div>
+  {% endif %}
+</div>
 
-</main>
-
+    <div class="analytics-grid">
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Daily Complaint Trend</h2>
+            <p>Last 7 calendar days</p>
+          </div>
+        </div>
+        <div class="analytics-chart">
+          <canvas id="dailyComplaintsChart" role="img" aria-label="Daily complaint counts"></canvas>
+        </div>
+        <p id="dailyChartFallback" class="chart-fallback" hidden>
+          Chart unavailable. Check your internet connection and reload the page.
+        </p>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Priority Distribution</h2>
+            <p>Critical, High, Medium and Low</p>
+          </div>
+        </div>
+        <div class="analytics-chart">
+          <canvas id="priorityChart" role="img" aria-label="Complaints grouped by priority"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Category Distribution</h2>
+            <p>AI-predicted complaint categories</p>
+          </div>
+        </div>
+        <div class="analytics-chart">
+          <canvas id="categoryChart" role="img" aria-label="Complaints grouped by category"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Status Distribution</h2>
+            <p>Current resolution workflow</p>
+          </div>
+        </div>
+        <div class="analytics-chart">
+          <canvas id="statusChart" role="img" aria-label="Complaints grouped by status"></canvas>
+        </div>
+      </div>
+    </div>
+    <p class="footnote">
+      Insights are calculated from recorded complaint data. AI category and priority labels are
+      decision-support signals; administrators should review complaint details before taking action.
+    </p>
+  </section>
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Complaint Queue</h2>
+        <p>Search complaints, filter the queue and update each complaint's status.</p>
+      </div>
+      <span class="panel-tag">Critical and High priorities appear first</span>
+    </div>
+    <form method="get" action="{{ url_for('admin') }}" class="filters">
+      <div class="search">
+        <input name="search" value="{{ search }}"
+               placeholder="Search ID, city, complaint, address..."
+               aria-label="Search complaints">
+      </div>
+      <select name="status" aria-label="Filter by status">
+        <option value="">All statuses</option>
+        {% for option in ['Submitted', 'In Progress', 'Resolved'] %}
+          <option value="{{ option }}" {% if selected_status == option %}selected{% endif %}>
+            {{ option }}
+          </option>
+        {% endfor %}
+      </select>
+      <select name="category" aria-label="Filter by category">
+        <option value="">All categories</option>
+        {% for option in ['Road Damage', 'Water Issue', 'Electrical Hazard', 'Flooding', 'Waste Management'] %}
+          <option value="{{ option }}" {% if selected_category == option %}selected{% endif %}>
+            {{ option }}
+          </option>
+        {% endfor %}
+      </select>
+      <select name="priority" aria-label="Filter by priority">
+        <option value="">All priorities</option>
+        {% for option in ['Critical', 'High', 'Medium', 'Low'] %}
+          <option value="{{ option }}" {% if selected_priority == option %}selected{% endif %}>
+            {{ option }}
+          </option>
+        {% endfor %}
+      </select>
+      <div class="filter-actions">
+        <button class="primary" type="submit">Apply filters</button>
+        <a class="reset" href="{{ url_for('admin') }}">Reset</a>
+      </div>
+    </form>
+    <div class="results">
+      Showing <strong>{{ recent_complaints|length }}</strong> of
+      <strong>{{ filtered_total }}</strong> matching complaints.
+    </div>
+    <div class="table-wrap">
+      {% if recent_complaints %}
+        <table>
+          <thead>
+            <tr>
+              <th>ID / Date</th>
+              <th>City</th>
+              <th>Complaint</th>
+              <th>AI category</th>
+              <th>Priority Engine 2.0</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Update status</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for item in recent_complaints %}
+            <tr>
+              <td>
+                <strong>#{{ item.id }}</strong>
+                <div class="reason">{{ item.created_at }}</div>
+              </td>
+              <td>{{ item.city }}</td>
+              <td class="complaint">{{ item.complaint }}</td>
+              <td>{{ item.category }}</td>
+              <td>
+                <span class="pill p-{{ item.priority|default('Medium', true) }}">
+                  {{ item.priority|default('Medium', true) }}
+                </span>
+                {% set score = item.priority_score|default(40, true)|int %}
+                <div class="score">{{ score }}/100</div>
+                <div class="scorebar">
+                  <span style="width:{{ [0, [100, score]|min]|max }}%"></span>
+                </div>
+                <div class="reason">
+                  {{ item.priority_reason|default('Priority details unavailable for this existing complaint.', true) }}
+                </div>
+              </td>
+              <td>
+                {% if item.location_address %}
+                  <div>{{ item.location_address }}</div>
+                {% elif item.latitude is not none and item.longitude is not none %}
+                  <div class="reason">GPS coordinates saved</div>
+                {% else %}
+                  <span class="location-missing">No GPS/address saved</span>
+                {% endif %}
+                {% if item.latitude is not none and item.longitude is not none %}
+                  <a class="location-link"
+                     href="https://www.google.com/maps?q={{ item.latitude }},{{ item.longitude }}"
+                     target="_blank" rel="noopener noreferrer">Open GPS location ↗</a>
+                {% endif %}
+              </td>
+              <td>
+                <span class="s-{{ item.status|replace(' ', '-') }}">{{ item.status }}</span>
+              </td>
+              <td>
+                <form method="post" action="{{ url_for('admin') }}" class="status-form">
+                  <input type="hidden" name="complaint_id" value="{{ item.id }}">
+                  <input type="hidden" name="search" value="{{ search }}">
+                  <input type="hidden" name="filter_status" value="{{ selected_status }}">
+                  <input type="hidden" name="filter_category" value="{{ selected_category }}">
+                  <input type="hidden" name="filter_priority" value="{{ selected_priority }}">
+                  <input type="hidden" name="page" value="{{ current_page }}">
+                  <select name="status" aria-label="New status for complaint {{ item.id }}">
+                    {% for option in ['Submitted', 'In Progress', 'Resolved'] %}
+                      <option value="{{ option }}" {% if item.status == option %}selected{% endif %}>
+                        {{ option }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit">Save</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty">No complaints match these filters. Try changing or resetting your filters.</div>
+      {% endif %}
+    </div>
+    <div class="pagination">
+      <div>Page {{ current_page }} of {{ total_pages }}</div>
+      <div class="pages">
+        {% if current_page > 1 %}
+          <a href="{{ url_for('admin', search=search, status=selected_status, category=selected_category, priority=selected_priority, page=current_page-1) }}">← Previous</a>
+        {% else %}
+          <span class="disabled">← Previous</span>
+        {% endif %}
+        <span class="active">{{ current_page }}</span>
+        {% if current_page < total_pages %}
+          <a href="{{ url_for('admin', search=search, status=selected_status, category=selected_category, priority=selected_priority, page=current_page+1) }}">Next →</a>
+        {% else %}
+          <span class="disabled">Next →</span>
+        {% endif %}
+      </div>
+    </div>
+    <p class="footnote">
+      Priority levels are AI-assisted triage suggestions. Administrators should review complaint
+      details before making real-world safety decisions. Complaints without GPS coordinates can
+      still be reviewed, but will not have a precise map pin.
+    </p>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  if (typeof Chart === "undefined") {
+    const fallback = document.getElementById("dailyChartFallback");
+    if (fallback) fallback.hidden = false;
+    console.error("Chart.js could not load.");
+    return;
+  }
+  const dailyData = {{ daily_complaint_counts | default([], true) | tojson }};
+  const categoryData = {{ category_counts | default([], true) | tojson }};
+  const priorityData = {{ priority_counts | default({}, true) | tojson }};
+  const statusData = {
+    "Submitted": {{ submitted_count | tojson }},
+    "In Progress": {{ in_progress_count | tojson }},
+    "Resolved": {{ resolved_count | tojson }}
+  };
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: "#eaf2fb",
+          padding: 16
+        }
+      }
+    }
+  };
+  const dailyCanvas = document.getElementById("dailyComplaintsChart");
+  if (dailyCanvas) {
+    new Chart(dailyCanvas, {
+      type: "line",
+      data: {
+        labels: dailyData.map(item => item.date),
+        datasets: [{
+          label: "Complaints",
+          data: dailyData.map(item => item.total),
+          borderColor: "#35d0bd",
+          backgroundColor: "rgba(53,208,189,0.15)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          x: {
+            ticks: { color: "#9bb0c8" },
+            grid: { color: "rgba(155,176,200,0.08)" }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: "#9bb0c8", precision: 0 },
+            grid: { color: "rgba(155,176,200,0.12)" }
+          }
+        }
+      }
+    });
+  }
+  function makeDoughnut(canvasId, labels, values) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    new Chart(canvas, {
+      type: "doughnut",
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: [
+            "#ff647c",
+            "#ffb454",
+            "#35d0bd",
+            "#9cc2ff",
+            "#b49cff",
+            "#55d6a2"
+          ],
+          borderColor: "#101d2e",
+          borderWidth: 3
+        }]
+      },
+      options: {
+        ...commonOptions,
+        cutout: "60%"
+      }
+    });
+  }
+  makeDoughnut(
+    "priorityChart",
+    ["Critical", "High", "Medium", "Low"],
+    [
+      priorityData.Critical || 0,
+      priorityData.High || 0,
+      priorityData.Medium || 0,
+      priorityData.Low || 0
+    ]
+  );
+  makeDoughnut(
+    "categoryChart",
+    categoryData.map(item => item.category),
+    categoryData.map(item => item.total)
+  );
+  makeDoughnut(
+    "statusChart",
+    Object.keys(statusData),
+    Object.values(statusData)
+  );
+});
+</script>
 </body>
 </html>
