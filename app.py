@@ -1,5 +1,7 @@
+
 from pathlib import Path
 from functools import wraps
+
 import os
 import json
 from urllib.parse import urlencode
@@ -7,6 +9,7 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
 import joblib
+
 from flask import (
     Flask,
     render_template,
@@ -17,6 +20,7 @@ from flask import (
     session,
     jsonify,
 )
+
 from werkzeug.security import (
     check_password_hash,
     generate_password_hash,
@@ -26,6 +30,8 @@ from database import (
     initialize_database,
     initialize_admin_table,
     create_admin,
+    get_admin_by_username,
+    get_connection,
     save_complaint,
     get_complaints,
     get_filtered_complaints,
@@ -37,7 +43,6 @@ from database import (
     get_resolution_analytics,
     update_complaint_status,
     get_complaint_by_id,
-    get_admin_by_username,
     validate_coordinates,
     get_map_complaints,
 )
@@ -62,6 +67,7 @@ if not app.secret_key:
         "Set it in your environment variables."
     )
 
+
 if not MODEL_PATH.exists():
     raise FileNotFoundError(
         "Model not found. Run train_model.py first."
@@ -69,12 +75,16 @@ if not MODEL_PATH.exists():
 
 model = joblib.load(MODEL_PATH)
 
+
 # Initialize the existing database without deleting its data.
 initialize_database()
 
-# Initialize the admin table and optionally bootstrap a Render admin.
+# Initialize the admin table.
 initialize_admin_table()
 
+
+# Render admin account bootstrap.
+# Credentials are read from environment variables.
 admin_username = os.environ.get(
     "CIVICPULSE_ADMIN_USERNAME", ""
 ).strip()
@@ -86,17 +96,39 @@ admin_password = os.environ.get(
 if admin_username and admin_password:
     if len(admin_password) < 16:
         app.logger.warning(
-            "Configured admin password must be at least "
-            "16 characters long. Admin bootstrap skipped."
+            "Admin bootstrap skipped: password must be "
+            "at least 16 characters long."
         )
-    elif not get_admin_by_username(admin_username):
-        create_admin(
-            admin_username,
-            generate_password_hash(admin_password),
+    else:
+        admin_account = get_admin_by_username(admin_username)
+
+        password_hash = generate_password_hash(
+            admin_password
         )
-        app.logger.info(
-            "Configured admin account created successfully."
-        )
+
+        if admin_account:
+            with get_connection() as connection:
+                connection.execute(
+                    """
+                    UPDATE admins
+                    SET password_hash = ?
+                    WHERE username = ?
+                    """,
+                    (password_hash, admin_username),
+                )
+
+            app.logger.info(
+                "Configured admin password updated."
+            )
+        else:
+            create_admin(
+                admin_username,
+                password_hash,
+            )
+
+            app.logger.info(
+                "Configured admin account created."
+            )
 
 
 def login_required(view_function):
