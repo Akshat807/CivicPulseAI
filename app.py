@@ -92,7 +92,13 @@ admin_username = os.environ.get(
 admin_password = os.environ.get(
     "CIVICPULSE_ADMIN_PASSWORD", ""
 )
-
+app.logger.info(
+    "Admin bootstrap diagnostic: username_present=%s, "
+    "password_present=%s, password_length_ok=%s",
+    bool(admin_username),
+    bool(admin_password),
+    len(admin_password) >= 16,
+)
 if admin_username and admin_password:
     if len(admin_password) < 16:
         app.logger.warning(
