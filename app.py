@@ -1,6 +1,8 @@
 
 from pathlib import Path
 from functools import wraps
+from chatbot_faq import get_faq_response
+from chatbot_ai import get_chat_response
 
 import os
 import json
@@ -610,6 +612,32 @@ def reverse_geocode():
                 ),
             }
         ), 502
+
+@app.route("/api/chat", methods=["POST"])
+def chatbot_api():
+    data = request.get_json(silent=True) or {}
+    message = data.get("message", "")
+
+    if not isinstance(message, str):
+        return jsonify({
+            "error": "Message must be text."
+        }), 400
+
+    message = message.strip()
+
+    if not message:
+        return jsonify({
+            "error": "Please type a message."
+        }), 400
+
+    if len(message) > 500:
+        return jsonify({
+            "error": "Message must be 500 characters or fewer."
+        }), 400
+
+    result = get_chat_response(message)
+    print("CHATBOT DEBUG:", result.get("intent"), result.get("source"))
+    return jsonify(result)
 
 
 if __name__ == "__main__":

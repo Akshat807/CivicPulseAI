@@ -397,5 +397,73 @@
 <script src="{{ url_for('static', filename='js/geolocation.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 
+
+<!-- CivicPulse AI Chatbot -->
+<button
+    id="cpChatLauncher"
+    class="cp-chat-launcher"
+    type="button"
+    aria-label="Open CivicPulse AI chat"
+    aria-controls="cpChatPanel"
+    aria-expanded="false"
+>💬</button>
+
+<section
+    id="cpChatPanel"
+    class="cp-chat-panel"
+    role="dialog"
+    aria-label="CivicPulse AI Assistant"
+    aria-hidden="true"
+>
+    <header class="cp-chat-header">
+        <div>
+            <strong>CivicPulse AI Assistant</strong>
+            <small>Gemini AI · Smart City Helpdesk</small>
+        </div>
+
+        <button
+            id="cpChatClose"
+            class="cp-chat-close"
+            type="button"
+            aria-label="Close chat"
+        >×</button>
+    </header>
+
+    <div
+        id="cpChatMessages"
+        class="cp-chat-messages"
+        aria-live="polite"
+    ></div>
+
+    <form id="cpChatForm" class="cp-chat-form">
+        <input
+            id="cpChatInput"
+            class="cp-chat-input"
+            type="text"
+            maxlength="500"
+            placeholder="Ask me anything about civic issues..."
+            aria-label="Type your question"
+            autocomplete="off"
+            required
+        >
+
+        <button
+            id="cpChatSend"
+            class="cp-chat-send"
+            type="submit"
+        >Send</button>
+    </form>
+
+    <div class="cp-chat-note">
+        AI assistant · Verify important information with the relevant authority.
+    </div>
+</section>
+
+<script
+    src="{{ url_for('static', filename='js/chatbot.js') }}"
+    defer
+></script>
+
+
 </body>
 </html>
